@@ -1,7 +1,7 @@
 <script>
     import { Card } from 'flowbite-svelte';
     import { onMount } from 'svelte';
-    import { Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, ButtonGroup, Button, Modal, Textarea, Label, Input, Pagination } from 'flowbite-svelte';
+    import { Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, ButtonGroup, Button, Modal, Textarea, Label, Input } from 'flowbite-svelte';
     import { EditOutline, EyeOutline, TrashBinOutline } from 'flowbite-svelte-icons';
     let textareaprops = {
         id: 'message',
@@ -23,7 +23,7 @@
         if (response.ok) {
             es = await response.json();
             es_data = es.data.es_data;
-            es_image = es.data.es_image;
+            es_image = es.data.es_img;
         } else {
             console.error('Error fetching es');
         }
@@ -143,6 +143,22 @@
                             <TableBodyRow>
                                 <TableBodyCell>Detail</TableBodyCell>
                                 <TableBodyCell>{@html formatWithLineBreaks(eDetail.details)}</TableBodyCell>
+                            </TableBodyRow>
+                            <TableBodyRow>
+                                <TableBodyCell>Attachment</TableBodyCell>
+                                <TableBodyCell>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        {#if Array.isArray(es_image)}
+                                            {#each es_image as ei}
+                                                {#if ei.es_id === eDetail.id}
+                                                <div>
+                                                    <img src="/edisi_siasat/{ei.img_url}" class="h-auto max-w-20 rounded-lg" alt=""/> 
+                                                </div>
+                                                {/if}
+                                            {/each}
+                                        {/if}
+                                    </div>
+                                </TableBodyCell>
                             </TableBodyRow>
                         </TableBody>
                     </Table>

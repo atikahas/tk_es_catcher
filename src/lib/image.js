@@ -12,7 +12,7 @@ export async function saveImage(imageFile) {
     const buffer = await imageFile.arrayBuffer();
     fs.writeFileSync(filePath, Buffer.from(buffer));
 
-    return filePath;
+    return fileName;
 }
 
 function generateUniqueFileName(originalName) {
