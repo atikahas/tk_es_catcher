@@ -1,5 +1,6 @@
 <script>
-import { Navbar, NavBrand, NavLi, NavUl, DarkMode, NavHamburger} from 'flowbite-svelte';
+import { Navbar, NavBrand, NavLi, NavUl, DarkMode, NavHamburger, Dropdown, DropdownItem } from 'flowbite-svelte';
+import { ChevronDownOutline } from 'flowbite-svelte-icons';
 import { page } from '$app/stores';
 	$: activeUrl = $page.url.pathname;
 </script>
@@ -10,8 +11,14 @@ import { page } from '$app/stores';
 	</NavBrand>
 	<NavHamburger />
 	<NavUl {activeUrl}>
-		<NavLi href="/edisi_siasat/view">Home</NavLi>
-		<NavLi href="/edisi_siasat/create">Create</NavLi>
+		<NavLi href="/">Home</NavLi>
+		<NavLi class="cursor-pointer">
+			Menu<ChevronDownOutline class="w-3 h-3 ms-2 text-primary-800 dark:text-white inline" />
+		</NavLi>
+		<Dropdown class="w-44 z-20">
+			<DropdownItem href="/edisi_siasat/view">List</DropdownItem>
+			<DropdownItem href="/edisi_siasat/create">Create</DropdownItem>
+		</Dropdown>
 		<NavLi><DarkMode class="py-0"/></NavLi>
 	</NavUl>
 </Navbar>

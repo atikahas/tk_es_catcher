@@ -104,7 +104,7 @@
                     <TableBodyCell>
                         <ButtonGroup>
                             <Button on:click={() => { viewDetails(e); esModal = true; }}><EyeOutline class="w-3 h-3" /></Button>
-                            <Button on:click={() => editItem(e)}><EditOutline class="w-3 h-3" /></Button>
+                            <Button on:click={() => { editItem(e); esModal = true; }}><EditOutline class="w-3 h-3" /></Button>
                             <Button disabled><TrashBinOutline class="w-3 h-3" /></Button>
                         </ButtonGroup>
                     </TableBodyCell>

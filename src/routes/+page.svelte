@@ -1,27 +1,16 @@
-<style>
-    .image-size {
-    width: 200px; /* desired fixed width */
-    height: 150px; /* desired fixed height */
-    object-fit: cover; /* this will ensure the aspect ratio is maintained */
-    }
-
-</style>
 <script>
-    import { Card, Button } from 'flowbite-svelte';
+    import { Card, Button, Span, Badge, Hr, Heading, P, Mark} from 'flowbite-svelte';
     import { ArrowRightOutline } from 'flowbite-svelte-icons';
     import { onMount } from 'svelte';
 
     let es = [];
     let es_news_img = [];
-    let es_news_img2 = [];
 
     onMount(async () => {
         const response = await fetch('/getNews');
         if (response.ok) {
             es = await response.json();
             es_news_img = es.data.es_data;
-            es_news_img2 = es.data.es_img;
-            console.log(es_news_img2);
         } else {
             console.error('Error fetching es');
         }
@@ -33,27 +22,45 @@
 
     const formatDate = (datetime) => {
         const date = new Date(datetime);
-        return date.toLocaleDateString();
+        const options = {day: 'numeric', month: 'short', year: 'numeric'};
+        return date.toLocaleDateString('en-UK', options);
     };
 
     const formatTime = (datetime) => {
         const time = new Date(datetime);
-        return time.toLocaleTimeString();
+        const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+        return time.toLocaleTimeString('en-US', options);
     };
 
 </script>
 
 <div class="mx-auto max-w-6xl font-sans text-lg mt-1">
-    <div class="grid grid-cols-4 gap-4">
+
+    <Hr classHr="w-48 h-1 mx-auto my-4 rounded md:my-10" />
+    <div class="mb-6 text-center">
+        <Heading tag="h1" class="mb-2">Edisi Siasat <Mark>latest</Mark> news on Telegram</Heading>
+        <P class="text-center">Stay updated, stay informed - your daily dose of news at your fingertips.</P>
+    </div>
+    
+    <div class="grid gap-4 md:grid-cols-4">
         {#if Array.isArray(es_news_img)}
             {#each es_news_img as ei}
-            <Card>
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{formatDate(ei.date_posted)} {formatTime(ei.date_posted)}</h5>
-                <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 leading-tight">{truncateDetails(ei.details)}</p>
-                <Button class="w-fit">
-                Read more <ArrowRightOutline class="w-3.5 h-3.5 ms-2 text-white" />
-                </Button>
-            </Card>
+                <Card>
+                    <div class="flex justify-between items-center">
+                        <h5 class="font-bold tracking-tight text-gray-900 dark:text-white mb-6">
+                            <Span underline decorationClass="decoration-8 decoration-blue-400 dark:decoration-blue-600">
+                                {formatDate(ei.date_posted)}
+                            </Span>
+                        </h5>
+                        <div>
+                            <Badge class="font-semibold mb-6">{formatTime(ei.date_posted)}</Badge>
+                        </div>
+                    </div>
+                    <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 leading-tight">{truncateDetails(ei.details)}</p>
+                    <Button size="xs" class="w-fit" href="/edisi_siasat/details/{ei.id}" >
+                        Read more <ArrowRightOutline class="w-3.5 h-3.5 ms-2 text-white" />
+                    </Button>
+                </Card>
             {/each}
         {/if}
     </div>
