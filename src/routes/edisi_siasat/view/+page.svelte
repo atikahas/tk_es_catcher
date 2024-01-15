@@ -58,29 +58,28 @@
         return date.toISOString().slice(0, 16); // 'YYYY-MM-DDTHH:mm'
     }
 
-    function editItem(e) {
+    function editDetails(e) {
         editDetail = { ...e, date_posted: formatForDateTimeInput(e.date_posted) };
         isEditing = true;
         esModal = true; 
     }
 
     async function submitEdit() {
-        console.log('submitEdit called');
+        const response = await fetch('/edisi_siasat/getUpdate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editDetail)
+        });
 
-        // await fetch('/edisi_siasat/getUpdate', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(editDetail)
-        // });
-        // const result = await response.json();
-        // if (result.success) {
-        //     console.log('Item added:', result.data);
-        // } else {
-        //     console.error('Failed to add item:', result.message);
-        // }
+        const result = await response.json();
+        if (result.success) {
+            console.log('Item added:', result.data);
+        } else {
+            console.error('Failed to add item:', result.message);
+        }
 
-        // isEditing = false;
-        // esModal = false;
+        isEditing = false;
+        esModal = false;
     }
 
 </script>
@@ -106,7 +105,7 @@
                     <TableBodyCell>
                         <ButtonGroup>
                             <Button on:click={() => { viewDetails(e) }}><EyeOutline class="w-3 h-3" /></Button>
-                            <Button on:click={() => { editItem(e) }}><EditOutline class="w-3 h-3" /></Button>
+                            <Button on:click={() => { editDetails(e) }}><EditOutline class="w-3 h-3" /></Button>
                             <Button disabled><TrashBinOutline class="w-3 h-3" /></Button>
                         </ButtonGroup>
                     </TableBodyCell>
@@ -116,7 +115,7 @@
             </TableBody>
         </Table>
 
-        <Modal title="ES Details" bind:open={esModal} autoclose>
+        <Modal title="ES Details" bind:open={esModal}>
             {#if isEditing}
                 <form on:submit|preventDefault={submitEdit}>
                     <div class="mb-6">
