@@ -1,5 +1,5 @@
 <script>
-    import { Card, Button, Label, Input, Textarea, Alert, Fileupload, Spinner, Span } from 'flowbite-svelte';
+    import { Card, Button, Label, Input, Textarea, Alert, Fileupload } from 'flowbite-svelte';
     import { CheckCircleOutline, CloseOutline } from 'flowbite-svelte-icons';
     import Tesseract from 'tesseract.js';
     import { onMount } from 'svelte';
@@ -14,9 +14,7 @@
     let esDetails = '';
     let esDate = '';
     let images = [];
-    let isLoading = false;
-    let imagePreviewUrl = null;
-
+    let ocrResults = [];
 
     async function addItem() {
         const formData = new FormData();
@@ -44,6 +42,20 @@
 
     function handleFiles(event) {
         images = event.target.files;
+        recognizeText(images);
+    }
+
+    async function recognizeText(files) {
+        ocrResults = []; // Reset previous results
+        for (const file of files) {
+            try {
+                const result = await Tesseract.recognize(file);
+                console.log(result);
+                ocrResults.push(result.data.text || 'No text recognized');
+            } catch (error) {
+                ocrResults.push('Error during text recognition');
+            }
+        }
     }
 
     function resetForm() {
@@ -69,39 +81,6 @@
         setTimeout(() => {
             errorDiv.style.display = 'none';
         }, 3000);
-    }
-
-    onMount(() => {
-        var myFile = document.getElementById('myFile');
-        if (myFile) {
-            myFile.addEventListener('change', recognizeText);
-        }
-    });
-
-    async function recognizeText({ target: { files } }) {
-        if (files.length === 0) {
-            console.log('No file selected');
-            return;
-        }
-
-        imagePreviewUrl = URL.createObjectURL(files[0]);
-        isLoading = true;
-
-        try {
-            const result = await Tesseract.recognize(files[0]);
-            const convertedTextElement = document.getElementById("convertedText");
-            if (result && result.data.text) {
-                convertedTextElement.value = result.data.text;
-                console.log(result);
-            } else {
-                convertedTextElement.value = 'No text recognized';
-            }
-        } catch (error) {
-            // console.error('Error during OCR processing:', error);
-            displayErrorBanner('Error during text recognition');
-        } finally {
-            isLoading = false; // Set loading to false when done
-        }
     }
 </script>
 
@@ -134,28 +113,12 @@
     </Card>
     <br>
     <Card size="xl">
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <b>Upload image here:</b>
-                <Fileupload id="myFile" name="filename" class="mb-4"/>
-                <div class="text-center">
-                    {#if imagePreviewUrl}
-                        <img src={imagePreviewUrl} alt="" class="mt-2" style="height: 240px;"/>
-                    {/if}
-                    {#if isLoading}
-                        <Span>
-                            <Spinner/>
-                            Processing ...
-                        </Span>
-                    {/if}
-                </div>
-                
-            </div>
-            <div>
-                <b>Image converted text:</b>
-                <Textarea cols="30" name="original" rows="15" id="convertedText">
-                </Textarea>
-            </div>
-        </div>
+        {#each ocrResults as ocrResult, index (index)}
+            <b>Image {index + 1} Text:</b>
+            <textarea rows="10" style="width: 100%;" readonly>
+                {ocrResult}
+            </textarea>
+            <br><br>
+        {/each}
     </Card>
 </div>

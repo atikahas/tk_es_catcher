@@ -26,6 +26,7 @@
     "flowbite-svelte-icons": "^0.4.5",
     "formidable": "^3.5.1",
     "mysql": "^2.18.1",
-    "mysql2": "^3.6.5"
+    "mysql2": "^3.6.5",
+    "tesseract.js": "^5.0.4"
   }
 }

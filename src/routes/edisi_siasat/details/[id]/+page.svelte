@@ -34,6 +34,10 @@
         return time.toLocaleTimeString('en-US', options);
     };
     
+    function formatWithLineBreaks(str) {
+        return str.replace(/(?:\r\n|\r|\n)/g, '<br>');
+    }
+
 </script>
 
 <div class="mx-auto max-w-6xl font-sans text-lg rounded-lg mt-10 shadow-lg">
@@ -42,7 +46,8 @@
             <Badge class="font-semibold mb-6 text-xl">{formatDate(esDetails.date_posted)} - {formatTime(esDetails.date_posted)}</Badge>
         </div>
         
-        {esDetails.details}
+        {@html formatWithLineBreaks(esDetails.details)}
+        <!-- {@html formatWithLineBreaks(esDetails.details)} -->
         <!-- <Gallery items={images} class="gap-4 grid-cols-2 md:grid-cols-3" /> -->
 
         {#if Array.isArray(esImage)}

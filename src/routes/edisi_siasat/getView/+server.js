@@ -2,7 +2,7 @@ import db from '$lib/db';
 
 export async function GET() {
     try {
-        const [es_data] = await db.query('SELECT * FROM telegram_edisi_siasat WHERE updated_at IS NULL ORDER BY date_posted DESC');
+        const [es_data] = await db.query('SELECT * FROM telegram_edisi_siasat WHERE updated_at IS NULL ORDER BY date_posted DESC LIMIT 20');
         const [es_img] = await db.query('SELECT * FROM telegram_edisi_siasat_img');
 
         return new Response(
