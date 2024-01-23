@@ -1,6 +1,6 @@
 <script>
-    import { Card, Button, Label, Input, Textarea, Alert, Fileupload, Spinner, Span } from 'flowbite-svelte';
-    import { CheckCircleOutline, CloseOutline } from 'flowbite-svelte-icons';
+    import { Card, Button, Label, Input, Textarea, Alert, Fileupload, Spinner, Span, Toast } from 'flowbite-svelte';
+    import { CheckCircleOutline, CloseOutline, InfoCircleSolid } from 'flowbite-svelte-icons';
     import Tesseract from 'tesseract.js';
     import { onMount } from 'svelte';
 
@@ -114,7 +114,7 @@
     </Alert>
 </div>
 
-<div class="mx-auto max-w-6xl font-sans text-lg rounded-lg mt-10 shadow-lg">
+<div class="mx-auto max-w-6xl font-sans text-lg rounded-lg mt-10 ">
     <Card size="xl">
         <form on:submit|preventDefault={addItem}>
             <div class="mb-6">
@@ -134,7 +134,13 @@
     </Card>
     <br>
     <Card size="xl">
+        <Alert class="mb-6" color="yellow" border dismissable>
+            <InfoCircleSolid slot="icon" class="w-4 h-4" />
+            <span class="font-medium">Tesseract OCR Update : </span>
+            Currently in Progress. Stay Tuned for Enhancements! 
+        </Alert>
         <div class="grid grid-cols-2 gap-4">
+            
             <div>
                 <b>Upload image here:</b>
                 <Fileupload id="myFile" name="filename" class="mb-4"/>

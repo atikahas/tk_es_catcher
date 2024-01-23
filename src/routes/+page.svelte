@@ -35,10 +35,10 @@
 </script>
 
 <div class="mx-auto max-w-6xl font-sans text-lg mt-1">
-
+    
     <Hr classHr="w-48 h-1 mx-auto my-4 rounded md:my-10" />
     <div class="mb-6 text-center">
-        <Heading tag="h1" class="mb-2">Edisi Siasat <Mark>latest</Mark> news on Telegram</Heading>
+        <Heading tag="h1" class="mb-2">Edisi Siasat <Mark>latest</Mark> news on Telegram </Heading>
         <P class="text-center">Stay updated, stay informed - your daily dose of news at your fingertips.</P>
     </div>
     

@@ -1,9 +1,8 @@
 <script>
-    import { Card, Span, Spinner } from 'flowbite-svelte';
+    import { Card } from 'flowbite-svelte';
     import { onMount } from 'svelte';
-    import { Table, TableSearch, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, ButtonGroup, Button, Modal, Textarea, Label, Input } from 'flowbite-svelte';
+    import { Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, ButtonGroup, Button, Modal, Textarea, Label, Input } from 'flowbite-svelte';
     import { EditOutline, EyeOutline, TrashBinOutline } from 'flowbite-svelte-icons';
-
     let textareaprops = {
         id: 'message',
         name: 'message',
@@ -22,20 +21,28 @@
     onMount(async () => {
         const response = await fetch('/edisi_siasat/getView');
         if (response.ok) {
-            const result = await response.json();
-            es_data = result.data.es_data;
-            es_image = result.data.es_img;
-            totalPages = Math.ceil(es_data.length / itemsPerPage); // Ensure totalPages is updated
+            es = await response.json();
+            es_data = [...es.data.es_data];
+            console.log(es_data);
+            es_image = es.data.es_img;
         } else {
             console.error('Error fetching es');
         }
     });
 
-    const formatDate = (datetime) => new Date(datetime).toLocaleDateString();
-    const formatTime = (datetime) => new Date(datetime).toLocaleTimeString();
-    const truncateDetails = (details) => details.split(' ').slice(0, 5).join(' ') + '...';
-    const formatWithLineBreaks = (str) => str.replace(/(?:\r\n|\r|\n)/g, '<br>');
-    const formatForDateTimeInput = (datetime) => new Date(datetime).toISOString().slice(0, 16);
+    const formatDate = (datetime) => {
+        const date = new Date(datetime);
+        return date.toLocaleDateString();
+    };
+
+    const formatTime = (datetime) => {
+        const time = new Date(datetime);
+        return time.toLocaleTimeString();
+    };
+
+    const truncateDetails = (details) => {
+        return details.split(' ').slice(0, 5).join(' ') + '...';
+    };
 
     function viewDetails(e) {
         eDetail = e;
@@ -43,10 +50,19 @@
         esModal = true;
     }
 
+    function formatWithLineBreaks(str) {
+        return str.replace(/(?:\r\n|\r|\n)/g, '<br>');
+    }
+
+    function formatForDateTimeInput(datetime) {
+        const date = new Date(datetime);
+        return date.toISOString().slice(0, 16); // 'YYYY-MM-DDTHH:mm'
+    }
+
     function editDetails(e) {
         editDetail = { ...e, date_posted: formatForDateTimeInput(e.date_posted) };
         isEditing = true;
-        esModal = true;
+        esModal = true; 
     }
 
     async function submitEdit() {
@@ -56,17 +72,11 @@
             body: JSON.stringify(editDetail)
         });
 
-        if (response.ok) {
-            const result = await response.json();
-            if (result.success) {
-                es_data = es_data.map(item => item.id === editDetail.id ? editDetail : item);
-                // console.log('Item updated:', result.data);
-                location.reload();
-            } else {
-                console.error('Failed to update item:', result.message);
-            }
+        const result = await response.json();
+        if (result.success) {
+            console.log('Item added:', result.data);
         } else {
-            console.error('Error submitting edit');
+            console.error('Failed to add item:', result.message);
         }
 
         isEditing = false;
@@ -76,17 +86,22 @@
     let currentPage = 1;
     const itemsPerPage = 10;
     let totalPages = Math.ceil(es_data.length / itemsPerPage);
-
-    const paginatedData = () => es_data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    
+    const paginatedData = () => {
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        return es_data.slice(start, end);
+    };
 
     const goToPage = (page) => {
         currentPage = page;
     };
+
 </script>
 
-<div class="mx-auto max-w-6xl font-sans text-lg rounded-lg mt-10 ">
+<div class="mx-auto max-w-6xl font-sans text-lg rounded-lg mt-10 shadow-lg">
     <Card size="xl">
-        <TableSearch hoverable={true} shadow>
+        <Table shadow>
             <TableHead>
                 <TableHeadCell>ID</TableHeadCell>
                 <TableHeadCell>DATE</TableHeadCell>
@@ -95,35 +110,25 @@
                 <TableHeadCell>OPTION</TableHeadCell>
             </TableHead>
             <TableBody>
-                {#if Array.isArray(es_data) && es_data.length > 0}
-                    {#each paginatedData() as e, index (e.id)}
-                        <TableBodyRow>
-                            <TableBodyCell>{index + 1 + (currentPage - 1) * itemsPerPage}</TableBodyCell>
-                            <TableBodyCell>{formatDate(e.date_posted)}</TableBodyCell>
-                            <TableBodyCell>{formatTime(e.date_posted)}</TableBodyCell>
-                            <TableBodyCell>{truncateDetails(e.details)}</TableBodyCell>
-                            <TableBodyCell>
-                                <ButtonGroup>
-                                    <Button on:click={() => viewDetails(e)}><EyeOutline class="w-3 h-3" /></Button>
-                                    <Button on:click={() => editDetails(e)}><EditOutline class="w-3 h-3" /></Button>
-                                    <Button disabled><TrashBinOutline class="w-3 h-3" /></Button>
-                                </ButtonGroup>
-                            </TableBodyCell>
-                        </TableBodyRow>
-                    {/each}
-                {:else}
-                    <TableBodyRow>
-                        <TableBodyCell colspan="5" class="text-center">
-                            <Span>
-                                <Spinner/>
-                                Loading ...
-                            </Span>
-                        </TableBodyCell>
-                    </TableBodyRow>
+                {#if Array.isArray(es_data)}
+                {#each paginatedData() as e, index (e.id)}
+                <TableBodyRow>
+                    <TableBodyCell>{index + 1}</TableBodyCell>
+                    <TableBodyCell>{formatDate(e.date_posted)}</TableBodyCell>
+                    <TableBodyCell>{formatTime(e.date_posted)}</TableBodyCell>
+                    <TableBodyCell>{truncateDetails(e.details)}</TableBodyCell>
+                    <TableBodyCell>
+                        <ButtonGroup>
+                            <Button on:click={() => { viewDetails(e) }}><EyeOutline class="w-3 h-3" /></Button>
+                            <Button on:click={() => { editDetails(e) }}><EditOutline class="w-3 h-3" /></Button>
+                            <Button disabled><TrashBinOutline class="w-3 h-3" /></Button>
+                        </ButtonGroup>
+                    </TableBodyCell>
+                </TableBodyRow>
+                {/each}
                 {/if}
             </TableBody>
-        </TableSearch>
-
+        </Table>
         <div class="flex justify-between items-center mt-4">
             <button on:click={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
             <span>Page {currentPage} of {totalPages}</span>
@@ -146,7 +151,7 @@
                 </form>
             {:else if eDetail}
                 <div class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-                    <Table noborder={true} striped={true}>
+                    <Table noborder={true}>
                         <TableBody>
                             <TableBodyRow>
                                 <TableBodyCell>Date</TableBodyCell>

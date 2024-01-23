@@ -46,7 +46,7 @@
             <Badge class="font-semibold mb-6 text-xl">{formatDate(esDetails.date_posted)} - {formatTime(esDetails.date_posted)}</Badge>
         </div>
         
-        {@html formatWithLineBreaks(esDetails.details)}
+        {esDetails.details}
         <!-- {@html formatWithLineBreaks(esDetails.details)} -->
         <!-- <Gallery items={images} class="gap-4 grid-cols-2 md:grid-cols-3" /> -->
 
