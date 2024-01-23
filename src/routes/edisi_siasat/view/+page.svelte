@@ -18,6 +18,7 @@
     let eDetail = null;
     let isEditing = false;
     let editDetail = {};
+    let searchTerm = '';
 
     onMount(async () => {
         const response = await fetch('/edisi_siasat/getView');
@@ -25,7 +26,7 @@
             const result = await response.json();
             es_data = result.data.es_data;
             es_image = result.data.es_img;
-            totalPages = Math.ceil(es_data.length / itemsPerPage); // Ensure totalPages is updated
+            totalPages = Math.ceil(es_data.length / itemsPerPage);
         } else {
             console.error('Error fetching es');
         }
@@ -74,19 +75,20 @@
     }
 
     let currentPage = 1;
-    const itemsPerPage = 10;
-    let totalPages = Math.ceil(es_data.length / itemsPerPage);
+    let totalPages;
+    const itemsPerPage = 5;
 
-    const paginatedData = () => es_data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    $: filteredData = es_data.filter((item) => item.details.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
+    $: totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-    const goToPage = (page) => {
-        currentPage = page;
-    };
+    const paginatedData = () => filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const goToPage = (page) => {currentPage = page;};
+
 </script>
 
 <div class="mx-auto max-w-6xl font-sans text-lg rounded-lg mt-10 ">
     <Card size="xl">
-        <TableSearch hoverable={true} shadow>
+        <TableSearch hoverable={true} shadow bind:inputValue={searchTerm}>
             <TableHead>
                 <TableHeadCell>ID</TableHeadCell>
                 <TableHeadCell>DATE</TableHeadCell>
