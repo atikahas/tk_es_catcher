@@ -12,7 +12,6 @@
         placeholder: 'Write details here...'
     };
     let esModal = false;
-    let es = [];
     let es_data = [];
     let es_image = [];
     let eDetail = null;
@@ -34,7 +33,7 @@
 
     const formatDate = (datetime) => new Date(datetime).toLocaleDateString();
     const formatTime = (datetime) => new Date(datetime).toLocaleTimeString();
-    const truncateDetails = (details) => details.split(' ').slice(0, 5).join(' ') + '...';
+    const truncateDetails = (details) => details.split(' ').slice(0, 20).join(' ') + '...';
     const formatWithLineBreaks = (str) => str.replace(/(?:\r\n|\r|\n)/g, '<br>');
     const formatForDateTimeInput = (datetime) => new Date(datetime).toISOString().slice(0, 16);
 
@@ -76,12 +75,12 @@
 
     let currentPage = 1;
     let totalPages;
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     $: filteredData = es_data.filter((item) => item.details.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
     $: totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    $: paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    const paginatedData = () => filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
     const goToPage = (page) => {currentPage = page;};
 
 </script>
@@ -98,12 +97,12 @@
             </TableHead>
             <TableBody>
                 {#if Array.isArray(es_data) && es_data.length > 0}
-                    {#each paginatedData() as e, index (e.id)}
+                    {#each paginatedData as e, index (e.id)}
                         <TableBodyRow>
                             <TableBodyCell>{index + 1 + (currentPage - 1) * itemsPerPage}</TableBodyCell>
                             <TableBodyCell>{formatDate(e.date_posted)}</TableBodyCell>
                             <TableBodyCell>{formatTime(e.date_posted)}</TableBodyCell>
-                            <TableBodyCell>{truncateDetails(e.details)}</TableBodyCell>
+                            <TableBodyCell class="whitespace-normal">{truncateDetails(e.details)}</TableBodyCell>
                             <TableBodyCell>
                                 <ButtonGroup>
                                     <Button on:click={() => viewDetails(e)}><EyeOutline class="w-3 h-3" /></Button>
@@ -160,7 +159,7 @@
                             </TableBodyRow>
                             <TableBodyRow>
                                 <TableBodyCell>Detail</TableBodyCell>
-                                <TableBodyCell>{@html formatWithLineBreaks(eDetail.details)}</TableBodyCell>
+                                <TableBodyCell class="whitespace-normal">{@html formatWithLineBreaks(eDetail.details)}</TableBodyCell>
                             </TableBodyRow>
                             <TableBodyRow>
                                 <TableBodyCell>Attachment</TableBodyCell>
