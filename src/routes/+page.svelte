@@ -84,6 +84,7 @@
                 .attr('text-anchor', 'middle')
                 .attr('transform', d => `translate(${d.x}, ${d.y})`)
                 .text(d => d.text);
+
         }
     };
 
