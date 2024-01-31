@@ -1,10 +1,13 @@
 <script>
     import { Card, Button, Span, Badge, Hr, Heading, P, Mark} from 'flowbite-svelte';
     import { ArrowRightOutline } from 'flowbite-svelte-icons';
+    import * as d3 from 'd3';
+    import cloud from 'd3-cloud';
     import { onMount } from 'svelte';
 
     let es = [];
     let es_news_img = [];
+    let es_entities = [];
 
     onMount(async () => {
         const response = await fetch('/getNews');
@@ -32,7 +35,69 @@
         return time.toLocaleTimeString('en-US', options);
     };
 
+    onMount(async () => {
+        const response = await fetch('/getWordCloud');
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success && Array.isArray(result.data.es_entities)) {
+                es_entities = result.data.es_entities.map(e => ({
+                    text: e.text,
+                    size: e.size 
+                }));
+                wordCloud();
+            } else {
+                console.error('Data received from /getWordCloud does not have es_entities array');
+            }
+        } else {
+            console.error('Error fetching word cloud data');
+        }
+    });
+
+    const wordCloud = () => {
+        const container = document.getElementById('word-cloud');
+        const width = container.offsetWidth;
+        const height = width * 0.75;
+
+        d3.select('#word-cloud svg').remove();
+
+        const layout = cloud()
+            .size([width, height])
+            .words(es_entities.map(d => ({ text: d.text, size: d.size })))
+            .padding(5)
+            .rotate(0)
+            .fontSize(d => d.size)
+            .on('end', draw);
+
+        layout.start();
+
+        function draw(words) {
+            const svg = d3.select('#word-cloud').append('svg')
+                .attr('width', layout.size()[0])
+                .attr('height', layout.size()[1])
+                .append('g')
+                .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`);
+
+            svg.selectAll('text')
+                .data(words)
+                .enter().append('text')
+                .style('font-size', d => `${d.size}px`)
+                .attr('text-anchor', 'middle')
+                .attr('transform', d => `translate(${d.x}, ${d.y})`)
+                .text(d => d.text);
+        }
+    };
+
+
+
 </script>
+<style>
+    .word-cloud-container {
+        width: 100%;
+        height: auto;
+        margin-top: 2rem;
+    }
+</style>
+
 
 <div class="mx-auto max-w-6xl font-sans text-lg mt-1">
     
@@ -63,5 +128,8 @@
                 </Card>
             {/each}
         {/if}
+    </div>
+
+    <div id="word-cloud" class="word-cloud-container text-center">
     </div>
 </div>
