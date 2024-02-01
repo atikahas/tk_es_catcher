@@ -2,7 +2,20 @@ import db from '$lib/db';
 
 export async function GET() {
     try {
-        const [es_entities] = await db.query("SELECT a.ntts AS 'text', COUNT(*) AS 'size' FROM (SELECT ntts, LENGTH(ntts) AS l FROM telegram_edisi_siasat_NTTS HAVING l > 2)a WHERE a.ntts != 'Ha3' AND a.ntts != 'hang' GROUP BY a.ntts");
+
+        let query = `
+                        SELECT a.ntts AS 'text', COUNT(*) AS 'size' 
+                        FROM 
+                            (SELECT ntts, LENGTH(ntts) AS l 
+                            FROM telegram_edisi_siasat_NTTS 
+                            HAVING l > 2)a 
+                            WHERE a.ntts not in ('Ha3', 'hang', 'Assalamualaikum', 'judi', 'ker', 'urine', 'ler', 'hah', 'ni hah', 'korang', 'lembik', 'yer', '---', 'allah', 'al-quran' ) 
+                        GROUP BY a.ntts
+                        order by size desc
+                        limit 100
+                        
+                    `
+        const [es_entities] = await db.query(query);
 
         return new Response(
             JSON.stringify({ success: true, data: {es_entities} }),

@@ -22,4 +22,5 @@ import { page } from '$app/stores';
 		</Dropdown>
 		<NavLi><DarkMode class="py-0"/></NavLi>
 	</NavUl>
+
 </Navbar>
