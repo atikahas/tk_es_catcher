@@ -75,7 +75,7 @@
 
     let currentPage = 1;
     let totalPages;
-    const itemsPerPage = 10;
+    const itemsPerPage = 5;
 
     $: filteredData = es_data.filter((item) => item.details.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
     $: totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -158,23 +158,40 @@
                                 <TableBodyCell>{formatTime(eDetail.date_posted)}</TableBodyCell>
                             </TableBodyRow>
                             <TableBodyRow>
+                                <TableBodyCell>Source</TableBodyCell>
+                                <TableBodyCell>
+                                    {#if eDetail.source_name}
+                                        {eDetail.source_name}
+                                    {:else}
+                                        -
+                                    {/if}
+                                    {#if eDetail.source_url}
+                                        <a href="{eDetail.source_url}" target="_blank" rel="noopener noreferrer" class="inline-block hover:bg-blue-50 text-white font-bold py-1 px-2 rounded">
+                                            <svg class="w-4 h-4 text-blue-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 14v4.8a1.2 1.2 0 0 1-1.2 1.2H5.2A1.2 1.2 0 0 1 4 18.8V7.2A1.2 1.2 0 0 1 5.2 6h4.6m4.4-2H20v5.8m-7.9 2L20 4.2"/>
+                                            </svg>
+                                        </a>
+                                    {/if}
+                                </TableBodyCell>
+                            </TableBodyRow>
+                            <TableBodyRow>
                                 <TableBodyCell>Detail</TableBodyCell>
                                 <TableBodyCell class="whitespace-normal">{@html formatWithLineBreaks(eDetail.details)}</TableBodyCell>
                             </TableBodyRow>
                             <TableBodyRow>
                                 <TableBodyCell>Attachment</TableBodyCell>
                                 <TableBodyCell>
-                                    <div class="grid grid-cols-2 gap-2">
+                                    <!-- <div class="grid grid-cols-2 gap-2"> -->
                                         {#if Array.isArray(es_image)}
                                             {#each es_image as ei}
                                                 {#if ei.es_id === eDetail.id}
-                                                <div>
-                                                    <img src="/edisi_siasat/{ei.img_url}" class="h-auto max-w-20 rounded-lg" alt=""/> 
+                                                <div class="relative">
+                                                    <img src="/edisi_siasat/{ei.img_url}" class="max-h-30 max-w-auto rounded-lg m-2" alt=""/> 
                                                 </div>
                                                 {/if}
                                             {/each}
                                         {/if}
-                                    </div>
+                                    <!-- </div> -->
                                 </TableBodyCell>
                             </TableBodyRow>
                         </TableBody>

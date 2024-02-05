@@ -1,14 +1,5 @@
 <script>
-    import {
-        Card,
-        Button,
-        Span,
-        Badge,
-        Hr,
-        Heading,
-        P,
-        Mark,
-    } from "flowbite-svelte";
+    import {Card, Button, Span, Badge, Hr, Heading, P, Mark} from "flowbite-svelte";
     import { ArrowRightOutline } from "flowbite-svelte-icons";
     import { onMount } from "svelte";
     import * as d3 from "d3";
@@ -49,7 +40,7 @@
         const response = await fetch("/getWordCloud");
         if (response.ok) {
             const result = await response.json();
-            console.log(result);
+            // console.log(result);
             if (result.success && Array.isArray(result.data.es_entities)) {
                 es_entities = result.data.es_entities.map((e) => ({
                     text: e.text,
@@ -69,7 +60,6 @@
     const wordCloud = () => {
         const container = document.getElementById("word-cloud");
         const width = container.offsetWidth;
-        // const width = window.innerWidth;
         const height = width * 0.35;
 
         d3.select("#word-cloud svg").remove();
@@ -99,27 +89,6 @@
                     })`,
                 );
 
-            // svg.selectAll('text')
-            //     .data(words)
-            //     .enter().append('text')
-            //     .style('font-size', d => `${d.size}px`)
-            //     .attr('text-anchor', 'middle')
-            //     .attr('transform', d => `translate(${d.x}, ${d.y})`)
-            //     .text(d => d.text)
-            //     .on('mouseover', function (d) {
-            //         d3.select(this)
-            //             .attr('fill', '#1C64F2')
-            //             .style('font-size', d => `${d.size+10}px`)
-            //             .style('z-index', '2')
-            //     })
-            //     .on('mouseout', function (d) {
-            //         d3.select(this)
-            //             .transition()
-            //             .duration(500)
-            //             .attr('fill', 'black')
-            //             .style('font-size', d => `${d.size}px`)
-            //     });
-
             svg.selectAll("text")
                 .data(words)
                 .enter()
@@ -127,12 +96,10 @@
                 .style("font-size", (d) => `${d.size}px`)
                 .attr("text-anchor", "middle")
                 .attr("transform", (d) => `translate(${d.x}, ${d.y})`)
-                .attr("fill", "#9CA3AF") // Ensure default fill is set
+                .attr("fill", "#9CA3AF")
                 .text((d) => d.text);
 
-            // Function to apply blink effect to three random texts simultaneously
             const blinkRandomTexts = () => {
-                // Generate three unique random indices
                 let indices = [];
                 while (indices.length < 1) {
                     let r = Math.floor(Math.random() * words.length);
@@ -149,15 +116,14 @@
                         .duration(500)
                         .attr("fill", "#1C64F2")
                         .style("font-size", (d) => `${d.size + 10}px`)
-                        .transition() // Chain another transition to revert
+                        .transition() 
                         .duration(3000)
                         .attr("fill", "#9CA3AF")
                         .style("font-size", (d) => `${d.size}px`);
                 });
             };
 
-            // Set interval to blink text randomly
-            d3.interval(blinkRandomTexts, 100); // Adjust time as needed
+            d3.interval(blinkRandomTexts, 100);
         }
     };
 
@@ -191,14 +157,11 @@
 <!-- <Hr classHr="w-48 h-1 mx-auto my-4 rounded md:my-10" /> -->
 <section>
     <div class="mb-6 text-center">
-        <Heading tag="h1" class="mb-2">Edisi Siasat <Mark>latest</Mark> news
+        <Heading tag="h1" class="mb-2">Siasat <Mark>latest</Mark> news
         </Heading>
-        <P class="text-center">Stay updated, stay informed - your daily dose of news at your fingertips.</P>
+        <P class="text-center pb-6">Stay updated, stay informed - your daily dose of news at your fingertips.</P>
     </div>
-    <div
-        id="word-cloud"
-        class="word-cloud-container text-center content-center"
-    ></div>
+    <div id="word-cloud" class="word-cloud-container text-center content-center"></div>
 </section>
 
 <section>
