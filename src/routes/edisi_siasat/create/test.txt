@@ -15,10 +15,13 @@
     let esDate = '';
     let esSourceName = '';
     let esSourceURL = '';
-    let images = [];
-    let imagePreviewUrls = [];
-    let imageDetailsArray = [];
-    let isLoadingArray = [];
+    let image = null;
+    let imageDetails = '';
+    let imagePreviewUrl = null;
+    let images = []; // Array to store multiple images
+    let imagePreviewUrls = []; // Array to store URLs for image previews
+    let imageDetailsArray = []; // Array to store recognized texts for each image
+    let isLoading = false;
     
 
     function displaySuccessBanner(message) {
@@ -41,6 +44,18 @@
         }, 3000);
     }
 
+    // function handleFiles(event) {
+    //     const files = event.target.files;
+    //     if (files.length > 0) {
+    //         const file = files[0];
+    //         if (imagePreviewUrl) {
+    //             URL.revokeObjectURL(imagePreviewUrl);
+    //         }
+    //         imagePreviewUrl = URL.createObjectURL(file);
+    //         image = file;
+    //     }
+    // }
+
     function handleFiles(event) {
         const files = Array.from(event.target.files);
         if (files.length > 0) {
@@ -58,10 +73,32 @@
     });
 
     onDestroy(() => {
-        if (imagePreviewUrls) {
-            URL.revokeObjectURL(imagePreviewUrls);
+        if (imagePreviewUrl) {
+            URL.revokeObjectURL(imagePreviewUrl);
         }
     });
+
+    // async function recognizeText(event) {
+    //     handleFiles(event);
+
+    //     if (!image) {
+    //         console.log('No file selected');
+    //         return;
+    //     }
+
+    //     isLoading = true;
+
+    //     try {
+    //         const result = await Tesseract.recognize(image);
+    //         imageDetails = result && result.data.text ? result.data.text : 'No text recognized';
+    //         const convertedTextElement = document.getElementById("convertedText");
+    //         convertedTextElement.value = imageDetails;
+    //     } catch (error) {
+    //         displayErrorBanner('Error during text recognition: ' + error.message);
+    //     } finally {
+    //         isLoading = false;
+    //     }
+    // }
 
     async function recognizeText() {
         if (!images.length) {
@@ -69,23 +106,23 @@
             return;
         }
 
+        isLoading = true;
         imageDetailsArray = [];
-        isLoadingArray = images.map(() => true);
 
         try {
-            for (const [index, image] of images.entries()) {
+            for (const image of images) {
                 const result = await Tesseract.recognize(image);
                 const text = result && result.data.text ? result.data.text : 'No text recognized';
-                imageDetailsArray[index] = text;
-                isLoadingArray[index] = false;
+                console.log(text);
+                imageDetailsArray.push(text);
             }
         } catch (error) {
             displayErrorBanner('Error during text recognition: ' + error.message);
+            console.log( error.message);
         } finally {
-            isLoadingArray = isLoadingArray.map(() => false);
+            isLoading = false;
         }
     }
-
 
     async function addItem() {
         const formData = new FormData();
@@ -93,30 +130,21 @@
         formData.append('esDate', esDate);
         formData.append('esSourceName', esSourceName);
         formData.append('esSourceURL', esSourceURL);
+        formData.append('imageDetails', imageDetails);
+        formData.append('image', image);
 
-        for (let i = 0; i < images.length; i++) {
-            formData.append(`image-${i}`, images[i]);
-            formData.append(`imageDetails-${i}`, imageDetailsArray[i] || '');
-        }
+        const response = await fetch('/edisi_siasat/getAdd', {
+            method: 'POST',
+            body: formData
+        });
 
-        formData.append('imageCount', images.length);
+        const result = await response.json();
 
-        try {
-            const response = await fetch('/edisi_siasat/getAdd', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                displaySuccessBanner('Info added.');
-                resetForm();
-            } else {
-                displayErrorBanner('Failed to add.');
-            }
-        } catch (error) {
-            displayErrorBanner('Error: ' + error.message);
+        if (result.success) {
+            displaySuccessBanner('Info added.');
+            resetForm();
+        } else {
+            displayErrorBanner('Failed to add.');
         }
     }
 
@@ -125,22 +153,18 @@
         esDate = '';
         esSourceName = '';
         esSourceURL = '';
-        images = [];
-        imagePreviewUrls = [];
-        imageDetailsArray = []; 
-        isLoadingArray = []; 
-
+        image = null;
+        imagePreviewUrl = null;
+        imageDetails = '';
         const fileInput = document.getElementById('image-upload');
         if (fileInput) {
             fileInput.value = '';
         }
-
-        const textAreas = document.querySelectorAll('.image-detail-textarea');
-        textAreas.forEach(textArea => {
+        const textArea = document.getElementById('convertedText');
+        if (textArea) {
             textArea.value = '';
-        });
+        }
     }
-
 </script>
 
 <div class="mx-auto max-w-6xl font-sans mt-10">
@@ -175,24 +199,37 @@
                 <div class="sm:col-span-2">
                     <div>
                         <Label for="default-input" class="block mb-2">Upload Image</Label>
+                        <!-- <Fileupload  id="image-upload" class="mb-4" name="img_url" on:change={handleFiles}/> -->
                         <Fileupload id="image-upload" class="mb-4" name="img_url" multiple on:change={handleFiles}/>
+                        <!-- <div class="text-center">
+                            {#if imagePreviewUrl}
+                                <img src={imagePreviewUrl} alt="" class="mt-2" style="height: 200px;"/>
+                            {/if}
+                            {#if isLoading}
+                                <Span>
+                                    <Spinner/>
+                                    Processing ...
+                                </Span>
+                            {/if}
+                        </div> -->
                         <div class="grid grid-cols-2 gap-4">
-                            {#each imagePreviewUrls as url, index}
+                        {#each imagePreviewUrls as url, index}
+                            
                                 <div>
                                     <img src={url} alt={`Image ${index + 1}`} class="mt-2" style="height: 200px;"/>
-                                    {#if isLoadingArray[index]}
-                                        <Span>
-                                            <Spinner/>
-                                            Processing ...
-                                        </Span>
-                                    {/if}
                                 </div>
                                 <div>
-                                    <Textarea cols="30" rows="10" bind:value={imageDetailsArray[index]}></Textarea>
+                                    <Textarea cols="30" rows="10" value={imageDetailsArray[index] || ''} ></Textarea>
                                 </div>
-                            {/each}
+                            
+                        {/each}
                         </div>
                     </div>
+                    <!-- <div>
+                        <Label for="default-input" class="block mb-2">Image Converted</Label>
+                        <Textarea cols="30" rows="10" name="img_details" id="convertedText" on:change={handleFiles}>
+                        </Textarea>
+                    </div> -->
                 </div>
                 <div class="sm:col-span-2">
                     <Button class="w-fit" type="submit">Add Item</Button>
