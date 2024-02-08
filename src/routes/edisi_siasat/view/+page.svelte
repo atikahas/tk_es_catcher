@@ -2,7 +2,7 @@
     import { Card, Span, Spinner } from 'flowbite-svelte';
     import { onMount } from 'svelte';
     import { Table, TableSearch, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, ButtonGroup, Button, Modal, Textarea, Label, Input } from 'flowbite-svelte';
-    import { EditOutline, EyeOutline, TrashBinOutline } from 'flowbite-svelte-icons';
+    import { EditOutline, EyeOutline, TrashBinOutline, PlusSolid } from 'flowbite-svelte-icons';
 
     let textareaprops = {
         id: 'message',
@@ -19,6 +19,11 @@
     let editDetail = {};
     let searchTerm = '';
 
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
     onMount(async () => {
         const response = await fetch('/edisi_siasat/getView');
         if (response.ok) {
@@ -26,6 +31,7 @@
             es_data = result.data.es_data;
             es_image = result.data.es_img;
             totalPages = Math.ceil(es_data.length / itemsPerPage);
+            searchTerm = getQueryParam('searchCloud') || '';
         } else {
             console.error('Error fetching es');
         }
@@ -60,7 +66,6 @@
             const result = await response.json();
             if (result.success) {
                 es_data = es_data.map(item => item.id === editDetail.id ? editDetail : item);
-                // console.log('Item updated:', result.data);
                 location.reload();
             } else {
                 console.error('Failed to update item:', result.message);
@@ -75,7 +80,7 @@
 
     let currentPage = 1;
     let totalPages;
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     $: filteredData = es_data.filter((item) => item.details.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
     $: totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -88,6 +93,11 @@
 <div class="mx-auto max-w-6xl font-sans text-lg rounded-lg mt-10 ">
     <Card size="xl">
         <TableSearch hoverable={true} shadow bind:inputValue={searchTerm}>
+            <!-- <div slot="header" class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                <Button>
+                <PlusSolid class="h-3.5 w-3.5 mr-2" />Add product
+                </Button>
+            </div> -->
             <TableHead>
                 <TableHeadCell>ID</TableHeadCell>
                 <TableHeadCell>DATE</TableHeadCell>
@@ -107,7 +117,7 @@
                                 <ButtonGroup>
                                     <Button on:click={() => viewDetails(e)}><EyeOutline class="w-3 h-3" /></Button>
                                     <Button on:click={() => editDetails(e)}><EditOutline class="w-3 h-3" /></Button>
-                                    <Button disabled><TrashBinOutline class="w-3 h-3" /></Button>
+                                    <Button disabled class="cursor-not-allowed"><TrashBinOutline class="w-3 h-3" /></Button>
                                 </ButtonGroup>
                             </TableBodyCell>
                         </TableBodyRow>

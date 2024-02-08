@@ -9,7 +9,7 @@ export async function GET() {
                             (SELECT ntts, LENGTH(ntts) AS l 
                             FROM telegram_edisi_siasat_NTTS 
                             HAVING l > 2)a 
-                            WHERE a.ntts not in ('Ha3', 'hang', 'Assalammualaikum', 'Assalamualaikum', 'judi', 'ker', 'urine', 'ler', 'hah', 'ni hah', 'korang', 'lembik', 'yer', '---', 'allah', 'al-quran' ) 
+                            WHERE a.ntts not in ('Ha3', 'hang', 'Assalammualaikum', 'Assalamualaikum', 'judi', 'ker', 'urine', 'ler', 'hah', 'ni hah', 'korang', 'lembik', 'yer', '---', 'allah', 'al-quran', 'Ya Allah' ) 
                         GROUP BY a.ntts
                         order by size desc
                         limit 100

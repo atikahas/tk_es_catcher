@@ -1,5 +1,5 @@
 <script>
-    import { Card, Button, Label, Input, Textarea, Alert, Fileupload, Spinner, Span } from 'flowbite-svelte';
+    import { Card, Button, Label, Input, Textarea, Alert, Fileupload, Spinner, Span, Tooltip } from 'flowbite-svelte';
     import { CheckCircleOutline, CloseOutline } from 'flowbite-svelte-icons';
     import Tesseract from 'tesseract.js';
     import { onMount, onDestroy } from 'svelte';
@@ -11,6 +11,7 @@
         rows: 5,
         placeholder: 'Write details here...'
     };
+    let placement = 'right';
     let esDetails = '';
     let esDate = '';
     let esSourceName = '';
@@ -162,11 +163,11 @@
                 </div>
                 <div class="sm:col-span-1">
                     <Label for="default-input" class="block mb-2">Source Name</Label>
-                    <Input type="text" bind:value={esSourceName}  />
+                    <Input type="text" bind:value={esSourceName} placeholder="Enter source name" />
                 </div>
                 <div class="sm:col-span-1">
                     <Label for="default-input" class="block mb-2">Source URL</Label>
-                    <Input type="text" bind:value={esSourceURL}  />
+                    <Input type="text" bind:value={esSourceURL} placeholder="https://example.com" />
                 </div>
                 <div class="sm:col-span-2">
                     <Label for="default-input" class="block mb-2">Details</Label>
@@ -174,7 +175,10 @@
                 </div>
                 <div class="sm:col-span-2">
                     <div>
-                        <Label for="default-input" class="block mb-2">Upload Image</Label>
+                        <Label for="default-input" class="block mb-2">Upload Image <strong class="text-blue-600/100 text-xs" data-tooltip-target="tooltip-dun" data-tooltip-placement="right">(?)</strong></Label>
+                                <div id="tooltip-dun" role="tooltip" class="text-xs absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-blue-600/100 rounded-lg shadow-sm opacity-0 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 tooltip">
+                                    Users may upload multiple images and must wait until the OCR processing is completed for each uploaded image before submit.
+                                </div>
                         <Fileupload id="image-upload" class="mb-4" name="img_url" multiple on:change={handleFiles}/>
                         <div class="grid grid-cols-2 gap-4">
                             {#each imagePreviewUrls as url, index}
@@ -195,7 +199,7 @@
                     </div>
                 </div>
                 <div class="sm:col-span-2">
-                    <Button class="w-fit" type="submit">Add Item</Button>
+                    <Button class="w-fit" type="submit">Submit</Button>
                 </div>
             </div>
         </form>

@@ -1,18 +1,22 @@
 <script>
-    import {Card, Button, Span, Badge, Hr, Heading, P, Mark} from "flowbite-svelte";
-    import { ArrowRightOutline } from "flowbite-svelte-icons";
+    import {Heading, P, Mark} from "flowbite-svelte";
     import { onMount } from "svelte";
     import * as d3 from "d3";
     import cloud from "d3-cloud";
 
     let es = [];
+    let es_news = [];
     let es_news_img = [];
+    let news_api = [];
+    let es_entities = [];
 
     onMount(async () => {
         const response = await fetch("/getNews");
         if (response.ok) {
             es = await response.json();
-            es_news_img = es.data.es_data;
+            es_news = es.data.es_data;
+            es_news_img = es.data.es_img;
+            news_api = es.data.news.articles;
         } else {
             console.error("Error fetching es");
         }
@@ -24,23 +28,14 @@
 
     const formatDate = (datetime) => {
         const date = new Date(datetime);
-        const options = { day: "numeric", month: "short", year: "numeric" };
-        return date.toLocaleDateString("en-UK", options);
+        const options = {day: 'numeric', month: 'short', year: 'numeric'};
+        return date.toLocaleDateString('en-UK', options);
     };
-
-    const formatTime = (datetime) => {
-        const time = new Date(datetime);
-        const options = { hour: "numeric", minute: "numeric", hour12: true };
-        return time.toLocaleTimeString("en-US", options);
-    };
-
-    let es_entities = [];
 
     onMount(async () => {
         const response = await fetch("/getWordCloud");
         if (response.ok) {
             const result = await response.json();
-            // console.log(result);
             if (result.success && Array.isArray(result.data.es_entities)) {
                 es_entities = result.data.es_entities.map((e) => ({
                     text: e.text,
@@ -49,7 +44,7 @@
                 wordCloud();
             } else {
                 console.error(
-                    "Data received from /getWordCloud does not have es_entities array",
+                    "Data not found.",
                 );
             }
         } else {
@@ -67,7 +62,6 @@
         const layout = cloud()
             .size([width, height])
             .words(es_entities.map((d) => ({ text: d.text, size: d.size })))
-            .padding(5)
             .rotate(0)
             .fontSize((d) => d.size)
             .on("end", draw);
@@ -78,138 +72,118 @@
             const svg = d3
                 .select("#word-cloud")
                 .append("svg")
-
                 .attr("width", layout.size()[0])
                 .attr("height", layout.size()[1])
                 .append("g")
-                .attr(
-                    "transform",
-                    `translate(${layout.size()[0] / 2},${
-                        layout.size()[1] / 2
-                    })`,
-                );
+                .attr("transform", `translate(${layout.size()[0] / 2}, ${layout.size()[1] / 2})`);
 
             svg.selectAll("text")
                 .data(words)
                 .enter()
                 .append("text")
-                .style("font-size", (d) => `${d.size}px`)
+                .style("font-size", (d) => `${Math.min(d.size - 5, 150)}px`)
                 .attr("text-anchor", "middle")
                 .attr("transform", (d) => `translate(${d.x}, ${d.y})`)
                 .attr("fill", "#9CA3AF")
-                .text((d) => d.text);
-
-            const blinkRandomTexts = () => {
-                let indices = [];
-                while (indices.length < 1) {
-                    let r = Math.floor(Math.random() * words.length);
-                    if (indices.indexOf(r) === -1) indices.push(r);
-                }
-
-                indices.forEach((index) => {
-                    const textElement = svg
-                        .selectAll("text")
-                        .filter((d, i) => i === index);
-
-                    textElement
-                        .transition()
-                        .duration(500)
-                        .attr("fill", "#1C64F2")
-                        .style("font-size", (d) => `${d.size + 10}px`)
-                        .transition() 
-                        .duration(3000)
+                .style("cursor", "pointer")
+                .text((d) => d.text)
+                .on("click", (event,d) => {
+                    window.location.href = `/edisi_siasat/view?searchCloud=${encodeURIComponent(d.text)}`;
+                })
+                .on("mouseover", (event, d) => {
+                    d3.select(event.currentTarget)
+                        .attr("fill", "#1c64f2")
+                        .style("font-size", (d) => `${Math.min(d.size + 5, 150)}px`)
+                })
+                .on("mouseout", (event, d) => {
+                    d3.select(event.currentTarget)
                         .attr("fill", "#9CA3AF")
-                        .style("font-size", (d) => `${d.size}px`);
-                });
-            };
-
-            d3.interval(blinkRandomTexts, 100);
+                        .style("font-size", (d) => `${Math.min(d.size - 5, 150)}px`)
+                })
         }
     };
 
-    let page = 0;
-    let totalSections;
-    let clock = 0;
-
-    function handleWheel(event) {
-        if (clock === 0) {
-            clock = 1;
-
-            let go = event.deltaY < 0 ? -1 : 1;
-            page += go;
-            if (page < 0) page = 0;
-            if (page >= totalSections) page = totalSections - 1;
-
-            window.scrollTo(0, window.innerHeight * page);
-
-            setTimeout(() => (clock = 0), 1000);
-        }
-    }
-
-    onMount(() => {
-        document.documentElement.style.scrollBehavior = "smooth";
-        document.documentElement.style.overflow = "hidden";
-        totalSections = document.querySelectorAll("section").length;
-        window.addEventListener("wheel", handleWheel);
-    });
 </script>
 
-<!-- <Hr classHr="w-48 h-1 mx-auto my-4 rounded md:my-10" /> -->
 <section>
-    <div class="mb-6 text-center">
-        <Heading tag="h1" class="mb-2">Siasat <Mark>latest</Mark> news
-        </Heading>
-        <P class="text-center pb-6">Stay updated, stay informed - your daily dose of news at your fingertips.</P>
+    <div class="text-center mb-4">
+        <Heading tag="h2" class="mb-2 ">Siasat <Mark>latest</Mark> news</Heading>
+        <P class="text-center">Stay updated, stay informed - your daily dose of news at your fingertips.</P>
     </div>
-    <div id="word-cloud" class="word-cloud-container text-center content-center"></div>
-</section>
-
-<section>
-    <div class="mx-auto max-w-6xl font-sans text-lg mt-1">
-        <div class="grid gap-4 md:grid-cols-4">
-            {#if Array.isArray(es_news_img)}
-                {#each es_news_img as ei}
-                    <Card>
-                        <div class="flex justify-between items-center">
-                            <h5
-                                class="font-bold tracking-tight text-gray-900 dark:text-white mb-6"
-                            >
-                                <Span
-                                    underline
-                                    decorationClass="decoration-8 decoration-blue-400 dark:decoration-blue-600"
-                                >
-                                    {formatDate(ei.date_posted)}
-                                </Span>
-                            </h5>
-                            <div>
-                                <Badge class="font-semibold mb-6"
-                                    >{formatTime(ei.date_posted)}</Badge
-                                >
+    <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+        <div class="md:col-span-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                <div class="sm:col-span-3">
+                    <div class="mb-3">
+                        <div class="flex justify-between items-center dark:bg-gray-600">
+                            <div class="text-gray-500 sm:text-lg dark:text-gray-400">
+                                <blockquote class="p-1 pl-2 border-s-8 border-blue-300">
+                                    <p class="text-xl italic font-medium leading-relaxed text-gray-900 dark:text-white">Latest News</p>
+                                </blockquote>
+                            </div>
+                            <a href="/edisi_siasat/view" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-500 dark:hover:text-blue-700">
+                                More News
+                                <svg class="ml-1 w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                    {#if Array.isArray(es_news)}
+                        {#each es_news as ei}
+                            <div class="relative">
+                                <a href="/edisi_siasat/details/{ei.id}" class="block hover:scale-[1.1] duration-300 ease-in-out hover:drop-shadow-xl grayscale-[80%] hover:filter-none">
+                                    <img src="/edisi_siasat/{ei.img_url}" class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt=""/>
+                                    <div class="absolute top-0 left-0 w-full h-40 flex items-center justify-center bg-black/50 rounded-lg hover:opacity-0 opacity-100 transition-opacity duration-300 ease-in-out">
+                                        <span class="text-white text-lg md:text-xl text-center font-semibold">{truncateDetails(ei.details)}</span>
+                                    </div>
+                                </a>
+                            </div>
+                        {/each}
+                    {/if}
+                    </div>
+                </div>
+                <div class="md:col-span-3 hidden lg:block">
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center dark:bg-gray-600">
+                            <div class="text-gray-500 sm:text-lg dark:text-gray-400">
+                                <blockquote class="p-1 pl-2 border-s-8 border-blue-300">
+                                    <p class="text-xl italic font-medium leading-relaxed text-gray-900 dark:text-white">Most Mentioned</p>
+                                </blockquote>
                             </div>
                         </div>
-                        <p
-                            class="mb-3 font-normal text-gray-700 dark:text-gray-400 leading-tight"
-                        >
-                            {truncateDetails(ei.details)}
-                        </p>
-                        <Button
-                            size="xs"
-                            class="w-fit"
-                            href="/edisi_siasat/details/{ei.id}"
-                        >
-                            Read more <ArrowRightOutline
-                                class="w-3.5 h-3.5 ms-2 text-white"
-                            />
-                        </Button>
-                    </Card>
-                {/each}
-            {/if}
+                    </div>
+                    <div class="rounded-lg">
+                        <div id="word-cloud" class="word-cloud-container text-center content-center max-h-screen"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="md:col-span-1">
+            <div class="mb-3">
+                <div class="flex justify-between items-center dark:bg-gray-600">
+                    <div class="text-gray-500 sm:text-lg dark:text-gray-400">
+                        <blockquote class="p-1 pl-2 border-s-8 border-blue-300">
+                            <p class="text-xl italic font-medium leading-relaxed text-gray-900 dark:text-white">Most Popular</p>
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+            <div class="rounded-lg">
+                <ol class="relative border-s border-gray-200 dark:border-gray-700">  
+                    {#if Array.isArray(news_api)}
+                        {#each news_api as n}
+                        <li class="mb-5 ms-4">
+                            <div class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-white-900 dark:bg-gray-700"></div>
+                            <time class="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{formatDate(n.publishedAt)}</time>
+                            <a href="{n.url}" target="_blank">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{truncateDetails(n.title)}</h3>
+                            </a>
+                        </li>
+                        {/each}
+                    {/if}
+                </ol>
+            </div>
         </div>
     </div>
 </section>
 
-<style>
-    section {
-        height: 100vh;
-    }
-</style>
