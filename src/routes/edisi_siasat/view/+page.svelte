@@ -19,6 +19,12 @@
     let editDetail = {};
     let searchTerm = '';
 
+      let divClass='bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden';
+        let innerDivClass='flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4';
+        let searchClass='w-full md:w-1/2 relative';
+        let svgDivClass='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none';
+        let classInput="text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2  pl-10";
+
     function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(param);
@@ -31,7 +37,8 @@
             es_data = result.data.es_data;
             es_image = result.data.es_img;
             totalPages = Math.ceil(es_data.length / itemsPerPage);
-            searchTerm = getQueryParam('searchCloud') || '';
+            const searchQueryParam = getQueryParam('searchCloud');
+            searchTerm = searchQueryParam || '';
         } else {
             console.error('Error fetching es');
         }
@@ -39,7 +46,10 @@
 
     const formatDate = (datetime) => new Date(datetime).toLocaleDateString();
     const formatTime = (datetime) => new Date(datetime).toLocaleTimeString();
-    const truncateDetails = (details) => details.split(' ').slice(0, 20).join(' ') + '...';
+    const truncateDetails = (details) => {if (details === null || details === undefined) {return '';}
+    return details.split(' ').slice(0, 40).join(' ') + '...';
+};
+
     const formatWithLineBreaks = (str) => str.replace(/(?:\r\n|\r|\n)/g, '<br>');
     const formatForDateTimeInput = (datetime) => new Date(datetime).toISOString().slice(0, 16);
 
@@ -82,7 +92,7 @@
     let totalPages;
     const itemsPerPage = 10;
 
-    $: filteredData = es_data.filter((item) => item.details.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
+    $: filteredData = es_data.filter((item) => item.details && item.details.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
     $: totalPages = Math.ceil(filteredData.length / itemsPerPage);
     $: paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -90,18 +100,19 @@
 
 </script>
 
-<div class="mx-auto max-w-6xl font-sans text-lg rounded-lg mt-10 ">
-    <Card size="xl">
-        <TableSearch hoverable={true} shadow bind:inputValue={searchTerm}>
-            <!-- <div slot="header" class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                <Button>
-                <PlusSolid class="h-3.5 w-3.5 mr-2" />Add product
-                </Button>
-            </div> -->
+<section>
+    <Card class="max-w-full">
+        <TableSearch placeholder="Search" hoverable={true} shadow bind:inputValue={searchTerm}  {innerDivClass} {searchClass} {classInput}>
+            <div slot="header" class="flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                <a href="/edisi_siasat/create" class="text-white bg-[#24292F] hover:bg-[#24292F]/90 focus:ring-4 focus:outline-none focus:ring-[#24292F]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-gray-500 dark:focus:ring-gray-500 dark:hover:bg-[#050708]/30 me-2 mb-2">
+                + Add News
+                </a>
+            </div>
             <TableHead>
                 <TableHeadCell>ID</TableHeadCell>
                 <TableHeadCell>DATE</TableHeadCell>
                 <TableHeadCell>TIME</TableHeadCell>
+                <TableHeadCell>SOURCE</TableHeadCell>
                 <TableHeadCell>DETAILS</TableHeadCell>
                 <TableHeadCell>OPTION</TableHeadCell>
             </TableHead>
@@ -112,6 +123,7 @@
                             <TableBodyCell>{index + 1 + (currentPage - 1) * itemsPerPage}</TableBodyCell>
                             <TableBodyCell>{formatDate(e.date_posted)}</TableBodyCell>
                             <TableBodyCell>{formatTime(e.date_posted)}</TableBodyCell>
+                            <TableBodyCell>{e.source_name}</TableBodyCell>
                             <TableBodyCell class="whitespace-normal">{truncateDetails(e.details)}</TableBodyCell>
                             <TableBodyCell>
                                 <ButtonGroup>
@@ -210,4 +222,4 @@
             {/if}
         </Modal>
     </Card>
-</div>
+</section>

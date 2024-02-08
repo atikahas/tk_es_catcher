@@ -153,8 +153,8 @@
     </Alert>
 </div>
 
-<div class="mx-auto max-w-6xl font-sans text-lg rounded-lg mt-10 ">
-    <Card size="xl">
+<section>
+    <Card class="max-w-full">
         <form on:submit|preventDefault={addItem}>
             <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
                 <div class="sm:col-span-2">
@@ -204,4 +204,4 @@
             </div>
         </form>
     </Card>
-</div>
+</section>
