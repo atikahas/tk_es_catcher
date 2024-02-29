@@ -208,7 +208,7 @@
                                             {#each es_image as ei}
                                                 {#if ei.es_id === eDetail.id}
                                                 <div class="relative">
-                                                    <img src="/edisi_siasat/{ei.img_url}" class="max-h-30 max-w-auto rounded-lg m-2" alt=""/> 
+                                                    <img src="http://172.20.100.190/img/{ei.img_url}" class="max-h-30 max-w-auto rounded-lg m-2" alt=""/> 
                                                 </div>
                                                 {/if}
                                             {/each}

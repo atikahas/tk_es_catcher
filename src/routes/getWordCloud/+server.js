@@ -4,12 +4,19 @@ export async function GET() {
     try {
 
         let query = `
+
                         SELECT a.ntts AS 'text', COUNT(*) AS 'size' 
                         FROM 
-                            (SELECT ntts, LENGTH(ntts) AS l 
-                            FROM telegram_edisi_siasat_NTTS 
-                            HAVING l > 2)a 
-                            WHERE a.ntts not in ('Ha3', 'hang', 'Assalammualaikum', 'Assalamualaikum', 'judi', 'ker', 'urine', 'ler', 'hah', 'ni hah', 'korang', 'lembik', 'yer', '---', 'allah', 'al-quran', 'Ya Allah' ) 
+                        (SELECT a.ntts, a.l 
+                        FROM 
+                        (SELECT es_id, ntts, LENGTH(ntts) AS l 
+                        FROM telegram_edisi_siasat_NTTS 
+                        HAVING l > 2)a
+                        LEFT JOIN 
+                        (SELECT id, date_posted FROM telegram_edisi_siasat)b
+                        ON a.es_id = b.id
+                        ORDER BY b.date_posted DESC)a 
+                        WHERE a.ntts not in ('Ha3', 'hang', 'Assalammualaikum', 'Assalamualaikum', 'judi', 'ker', 'urine', 'ler', 'hah', 'ni hah', 'korang', 'lembik', 'yer', '---', 'allah', 'al-quran', 'Ya Allah' ) 
                         GROUP BY a.ntts
                         order by size desc
                         limit 100
