@@ -132,12 +132,13 @@
             .attr("class", "label-line-group");
 
         const labelAdjustments = {
-            'SELANGOR': {xOffset: -75, yOffset: -10},
-            'W.P. KUALA LUMPUR': {xOffset: -85, yOffset: 10},
-            'W.P. PUTRAJAYA': {xOffset: -80, yOffset: 20},
+            'SELANGOR': {xOffset: -75, yOffset: -20},
+            'W.P. KUALA LUMPUR': {xOffset: -85, yOffset: 0},
+            'W.P. PUTRAJAYA': {xOffset: -80, yOffset: 15},
             'NEGERI SEMBILAN': {xOffset: -55, yOffset: 30},
             'MELAKA': {xOffset: -55, yOffset: 30},
-            'JOHOR': {xOffset: -55, yOffset: 35}
+            'JOHOR': {xOffset: -55, yOffset: 35},
+            'KELANTAN': {xOffset: 60, yOffset: -30}
         };
 
         labelsAndLines.each(function(d) {
@@ -155,12 +156,52 @@
                 xOffset = 55;
             }
 
+            // d3.select(this).append("line")
+            //     .attr("x1", x)
+            //     .attr("y1", y)
+            //     .attr("x2", x + xOffset)
+            //     .attr("y2", y + yOffset)
+            //     .attr("stroke", "black");
+
             d3.select(this).append("line")
                 .attr("x1", x)
                 .attr("y1", y)
+                .attr("x2", x)
+                .attr("y2", y + yOffset)
+                .attr("stroke", "black");
+
+            d3.select(this).append("line")
+                .attr("x1", x)
+                .attr("y1", y + yOffset)
                 .attr("x2", x + xOffset)
                 .attr("y2", y + yOffset)
                 .attr("stroke", "black");
+
+            d3.select(this).append("circle")
+                .attr('cx', x)
+                .attr('cy', y)
+                .attr('r', d => {
+                    // var stateid = d.properties.flag_id
+                    // var newData = dataset.filter(d => d.stateid == stateid)
+                    // if (newData != '') {
+                    //     return 3
+                    // }
+                    // else {
+                    //     return null
+                    // }
+                    return 2
+                })
+                .attr('fill', d => {
+                    // var stateid = d.properties.flag_id
+                    // var newData = dataset.filter(d => d.stateid == stateid)
+                    // if (newData != '') {
+                    //     return 'white'
+                    // }
+                    // else {
+                    //     return null
+                    // }
+                    return 'black'
+                })
 
             d3.select(this).append("text")
                 .attr("x", x + xOffset)
