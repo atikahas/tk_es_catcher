@@ -13,6 +13,9 @@
         const malaysia = await response.json();
         const cases = await casesinfo.json();
 
+        const ttl = cases.data.es_map;
+        const t= d3.max(ttl, d=> d.ttl);
+
         const projection = d3.geoMercator() 
             .center([101.9758, 4.2105])
             .scale(2000 + 5 * 100)
@@ -108,14 +111,27 @@
             .attr("id", d => "state" + d.properties.id)
             .attr("d", path)
             .style("fill", d => d.properties.total_negeri != null ? colorScale(d.properties.total_negeri) : "grey")
-            .style("stroke", "#666")
-            .style("stroke-width", "1px")
+            // .style("fill", "rgb(9, 71, 139)")
+            .style("opacity", .8)
+            .style("stroke", "transparent")
             .on("mouseover", function(event, d) {
-                d3.select(this).style("fill", "lightblue");
+                d3.selectAll(".state")
+                    .style("opacity", .3)
+                d3.select(this)
+                    .style("opacity", 1)
+                    .style("stroke", "black")
+            // .style("stroke", "#000")
+            // .style("stroke-width", "0.5px");
+                // d3.select(this).style("scale", "1");
             })
             .on("mouseout", function(event, d) {
-                d3.select(this).style("fill", d => d.properties.total_negeri != null ? colorScale(d.properties.total_negeri) : "grey");
+                d3.selectAll(".state")
+                    .style("opacity", .8)
+                d3.select(this)
+                    .style("stroke", "transparent")
             });
+            // .style("stroke", "#000")
+            // .style("stroke-width", "0.5px");
 
         const centroids = states.features.map(d => {
             return { ...d, centroid: path.centroid(d) };
