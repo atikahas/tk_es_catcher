@@ -172,26 +172,21 @@
                 xOffset = 55;
             }
 
-            // d3.select(this).append("line")
-            //     .attr("x1", x)
-            //     .attr("y1", y)
-            //     .attr("x2", x + xOffset)
-            //     .attr("y2", y + yOffset)
-            //     .attr("stroke", "black");
-
             d3.select(this).append("line")
                 .attr("x1", x)
                 .attr("y1", y)
                 .attr("x2", x)
                 .attr("y2", y + yOffset)
-                .attr("stroke", "black");
+                .attr("stroke", "black")
+                .attr("stroke-width", "0.4px");
 
             d3.select(this).append("line")
                 .attr("x1", x)
                 .attr("y1", y + yOffset)
                 .attr("x2", x + xOffset)
                 .attr("y2", y + yOffset)
-                .attr("stroke", "black");
+                .attr("stroke", "black")
+                .attr("stroke-width", "0.4px");
 
             d3.select(this).append("circle")
                 .attr('cx', x)
@@ -205,7 +200,7 @@
                     // else {
                     //     return null
                     // }
-                    return 2
+                    return 1.5
                 })
                 .attr('fill', d => {
                     // var stateid = d.properties.flag_id
@@ -226,7 +221,7 @@
                 .style("text-anchor", function(d) {
                     return borneoStates.includes(d.properties.negeri) || eastStates.includes(d.properties.negeri) ? "start" : "end";
                 })
-                .style("font-size", "12px")
+                .style("font-size", "10px")
                 .text(d => `${d.properties.negeri} (${d.properties.total_negeri})`);
         });
 
