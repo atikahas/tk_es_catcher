@@ -35,6 +35,7 @@
         if (response.ok) {
             const result = await response.json();
             es_data = result.data.es_data;
+            console.log(es_data);
             es_image = result.data.es_img;
             totalPages = Math.ceil(es_data.length / itemsPerPage);
             const searchQueryParam = getQueryParam('searchCloud');
@@ -112,6 +113,7 @@
                 <TableHeadCell>ID</TableHeadCell>
                 <TableHeadCell>DATE</TableHeadCell>
                 <TableHeadCell>TIME</TableHeadCell>
+                <TableHeadCell>STATE</TableHeadCell>
                 <TableHeadCell>SOURCE</TableHeadCell>
                 <TableHeadCell>DETAILS</TableHeadCell>
                 <TableHeadCell>OPTION</TableHeadCell>
@@ -123,6 +125,7 @@
                             <TableBodyCell>{index + 1 + (currentPage - 1) * itemsPerPage}</TableBodyCell>
                             <TableBodyCell>{formatDate(e.date_posted)}</TableBodyCell>
                             <TableBodyCell>{formatTime(e.date_posted)}</TableBodyCell>
+                            <TableBodyCell>{e.negeri || ' '}</TableBodyCell>
                             <TableBodyCell>{e.source_name}</TableBodyCell>
                             <TableBodyCell class="whitespace-normal">{truncateDetails(e.details)}</TableBodyCell>
                             <TableBodyCell>
@@ -136,10 +139,9 @@
                     {/each}
                 {:else}
                     <TableBodyRow>
-                        <TableBodyCell colspan="5" class="text-center">
+                        <TableBodyCell colspan="7" class="text-center">
                             <Span>
                                 <Spinner/>
-                                Loading ...
                             </Span>
                         </TableBodyCell>
                     </TableBodyRow>
@@ -208,7 +210,7 @@
                                             {#each es_image as ei}
                                                 {#if ei.es_id === eDetail.id}
                                                 <div class="relative">
-                                                    <img src="http://172.20.100.190/img/{ei.img_url}" class="max-h-30 max-w-auto rounded-lg m-2" alt=""/> 
+                                                    <img src="http://172.20.100.190/media/{ei.img_url}" class="max-h-30 max-w-auto rounded-lg m-2" alt=""/> 
                                                 </div>
                                                 {/if}
                                             {/each}

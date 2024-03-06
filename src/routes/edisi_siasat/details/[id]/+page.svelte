@@ -53,7 +53,7 @@
         {#if Array.isArray(esImage)}
             {#each esImage as ei}
                 <div>
-                    <img src="/edisi_siasat/{ei.img_url}" class="h-auto w-auto rounded-lg" alt=""/> 
+                    <img src="http://172.20.100.190/media/{ei.img_url}" class="h-auto w-auto rounded-lg" alt=""/> 
                 </div>
             {/each}
         {/if}

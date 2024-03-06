@@ -1,6 +1,7 @@
 <script>
     import {Heading, P, Mark} from "flowbite-svelte";
     import { onMount } from "svelte";
+    import Map from "./Map.svelte";
     import * as d3 from "d3";
     import cloud from "d3-cloud";
 
@@ -23,8 +24,9 @@
     });
 
     const truncateDetails = (details) => {
-        return details.split(" ").slice(0, 7).join(" ") + "...";
+        return details ? details.split(" ").slice(0, 7).join(" ") + "..." : '...';
     };
+
 
     const formatDate = (datetime) => {
         const date = new Date(datetime);
@@ -102,7 +104,7 @@
                 })
         }
     };
-
+    
 </script>
 
 <section>
@@ -132,7 +134,7 @@
                         {#each es_news as ei}
                             <div class="relative">
                                 <a href="/edisi_siasat/details/{ei.id}" class="block hover:scale-[1.1] duration-300 ease-in-out hover:drop-shadow-xl grayscale-[80%] hover:filter-none">
-                                    <img src="http://172.20.100.190/img/{ei.img_url}" class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt=""/>
+                                    <img src="http://172.20.100.190/media/{ei.img_url}" class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt=""/>
                                     <div class="absolute top-0 left-0 w-full h-40 flex items-center justify-center bg-black/50 rounded-lg hover:opacity-0 opacity-100 transition-opacity duration-300 ease-in-out">
                                         <span class="text-white text-lg md:text-xl text-center font-semibold">{truncateDetails(ei.details)}</span>
                                     </div>
@@ -182,6 +184,22 @@
                         {/each}
                     {/if}
                 </ol>
+            </div>
+        </div>
+        <div class="md:col-span-4">
+            <div class="mb-3">
+                <div class="flex justify-between items-center dark:bg-gray-600">
+                    <div class="text-gray-500 sm:text-lg dark:text-gray-400">
+                        <blockquote class="p-1 pl-2 border-s-8 border-blue-300">
+                            <p class="text-xl italic font-medium leading-relaxed text-gray-900 dark:text-white">Most Mentioned by State</p>
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+            <div class="h-full">
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <!-- <iframe src="https://meta.analitik.my/public/dashboard/825a9781-b7e8-4fd3-915e-fc341efe7f23" frameborder="0px" width="100%" height="100%" allowtransparency></iframe> -->
+                <Map/>
             </div>
         </div>
     </div>

@@ -38,7 +38,7 @@ export async function GET() {
         '325209d6f52d4d5481b0983f650f40bf'
     ];
 
-    const newsApiUrl = 'https://newsapi.org/v2/top-headlines?country=my&sortBy=popularity&pageSize=6';
+    const newsApiUrl = 'https://newsapi.org/v2/top-headlines?country=my&sortBy=popularity&pageSize=8';
 
     try {
         const news = await fetchNewsRetry(apiKeys, newsApiUrl);
