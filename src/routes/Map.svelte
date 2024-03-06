@@ -173,6 +173,36 @@
                 .text(d => `${d.properties.negeri} (${d.properties.total_negeri})`);
         });
 
+        const legendData = colorScale.ticks(10); 
+        const legendItemWidth = 20;
+        const legendItemHeight = 10;
+
+        const legendX = width - legendData.length * legendItemWidth - 20;
+        const legendY = 0;
+
+        const legend = d3.select(svg).append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${legendX}, ${legendY})`);
+
+        legend.selectAll("rect")
+            .data(legendData)
+            .enter()
+            .append("rect")
+            .attr("x", (d, i) => i * legendItemWidth)
+            .attr("y", 8)
+            .attr("width", legendItemWidth)
+            .attr("height", legendItemHeight)
+            .style("fill", d => colorScale(d));
+
+        legend.selectAll("text")
+            .data(legendData)
+            .enter()
+            .append("text")
+            .attr("x", (d, i) => i * legendItemWidth + legendItemWidth / 2)
+            .attr("y", legendItemHeight + 15) 
+            .text(d => d)
+            .attr("text-anchor", "middle")
+            .style("font-size", "6px");
     }
 
     onMount(() => {
