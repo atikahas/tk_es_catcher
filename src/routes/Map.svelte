@@ -6,7 +6,7 @@
     let svg;
 
     async function renderMap() {
-        var width = 960, height = 500;
+        var width = 960, height = 400;
 
         const response = await fetch('data/malaysia.json');
         const casesinfo = await fetch('/getState');
@@ -15,8 +15,8 @@
 
         const projection = d3.geoMercator() 
             .center([101.9758, 4.2105])
-            .scale(3000 + 5 * 100)
-            .translate([width / 5.5, height / 2])
+            .scale(2000 + 5 * 100)
+            .translate([width / 3.3, height / 2])
 
         const path = d3.geoPath().projection(projection);
 
@@ -116,6 +116,62 @@
             .on("mouseout", function(event, d) {
                 d3.select(this).style("fill", d => d.properties.total_negeri != null ? colorScale(d.properties.total_negeri) : "grey");
             });
+
+        const centroids = states.features.map(d => {
+            return { ...d, centroid: path.centroid(d) };
+        });
+
+        const westStates = ['PERLIS', 'KEDAH', 'PERAK', 'PULAU PINANG', 'SELANGOR', 'W.P. KUALA LUMPUR', 'W.P. PUTRAJAYA', 'NEGERI SEMBILAN', 'MELAKA', 'JOHOR'];
+        const eastStates = ['PAHANG', 'TERENGGANU', 'KELANTAN'];
+        const borneoStates = ['SABAH', 'SARAWAK'];
+        const borneoLabuan = ['W.P. LABUAN'];
+
+        const labelsAndLines = d3.select(svg).selectAll(".label-line-group")
+            .data(centroids)
+            .enter().append("g")
+            .attr("class", "label-line-group");
+
+        const labelAdjustments = {
+            'SELANGOR': {xOffset: -75, yOffset: -10},
+            'W.P. KUALA LUMPUR': {xOffset: -85, yOffset: 10},
+            'W.P. PUTRAJAYA': {xOffset: -80, yOffset: 20},
+            'NEGERI SEMBILAN': {xOffset: -55, yOffset: 30},
+            'MELAKA': {xOffset: -55, yOffset: 30},
+            'JOHOR': {xOffset: -55, yOffset: 35}
+        };
+
+        labelsAndLines.each(function(d) {
+            const [x, y] = d.centroid;
+            let xOffset = 0, yOffset = 0;
+            
+            if (labelAdjustments[d.properties.negeri]) {
+                xOffset = labelAdjustments[d.properties.negeri].xOffset;
+                yOffset = labelAdjustments[d.properties.negeri].yOffset;
+            } else if (westStates.includes(d.properties.negeri) || borneoLabuan.includes(d.properties.negeri)) {
+                xOffset = -55;
+            } else if (borneoStates.includes(d.properties.negeri)) {
+                xOffset = 100;
+            } else if (eastStates.includes(d.properties.negeri)) {
+                xOffset = 55;
+            }
+
+            d3.select(this).append("line")
+                .attr("x1", x)
+                .attr("y1", y)
+                .attr("x2", x + xOffset)
+                .attr("y2", y + yOffset)
+                .attr("stroke", "black");
+
+            d3.select(this).append("text")
+                .attr("x", x + xOffset)
+                .attr("y", y + yOffset)
+                .attr("dy", "0.35em")
+                .style("text-anchor", function(d) {
+                    return borneoStates.includes(d.properties.negeri) || eastStates.includes(d.properties.negeri) ? "start" : "end";
+                })
+                .style("font-size", "12px")
+                .text(d => `${d.properties.negeri} (${d.properties.total_negeri})`);
+        });
 
     }
 
