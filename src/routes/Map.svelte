@@ -117,9 +117,14 @@
             .on("mouseover", function(event, d) {
                 d3.selectAll(".state")
                     .style("opacity", .3)
+                d3.selectAll(".label-line-group")
+                    .style("opacity", .3)
                 d3.select(this)
                     .style("opacity", 1)
                     .style("stroke", "black")
+                d3.select("#label-"+d.properties.state_id)
+                    .style("opacity", 1)
+                    .style("font-weight","bold")
             // .style("stroke", "#000")
             // .style("stroke-width", "0.5px");
                 // d3.select(this).style("scale", "1");
@@ -127,8 +132,13 @@
             .on("mouseout", function(event, d) {
                 d3.selectAll(".state")
                     .style("opacity", .8)
+                d3.selectAll(".label-line-group")
+                    .style("opacity", .8)
                 d3.select(this)
                     .style("stroke", "transparent")
+                d3.select("#label-"+d.properties.state_id)
+                    .style("opacity", .8)
+                    .style("font-weight","normal")
             });
             // .style("stroke", "#000")
             // .style("stroke-width", "0.5px");
@@ -145,7 +155,10 @@
         const labelsAndLines = d3.select(svg).selectAll(".label-line-group")
             .data(centroids)
             .enter().append("g")
-            .attr("class", "label-line-group");
+            .attr("class", "label-line-group")
+            .attr("id", d=> {
+                return "label-"+d.properties.state_id
+            });
 
         const labelAdjustments = {
             'SELANGOR': {xOffset: -75, yOffset: -20},
