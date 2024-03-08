@@ -239,7 +239,35 @@
                 })
                 .style("font-size", "10px")
                 .text(d => `${d.properties.negeri} (${d.properties.total_negeri})`)
-        });
+        })
+            .on("mouseover", function(event, d) {
+                d3.selectAll(".state")
+                    .style("opacity", .3)
+                d3.selectAll(".label-line-group")
+                    .style("opacity", .3)
+                d3.select(this)
+                    .style("opacity", 1)
+                    .style("font-weight","bold")
+                d3.select("#state"+ d.properties.id)
+                    .style("opacity", 1)
+                    .style("stroke", "black")
+            // .style("stroke", "#000")
+            // .style("stroke-width", "0.5px");
+                // d3.select(this).style("scale", "1");
+            })
+            .on("mouseout", function(event, d) {
+                d3.selectAll(".state")
+                    .style("opacity", .8)
+                    .style("stroke", "transparent")
+                d3.selectAll(".label-line-group")
+                    .style("opacity", .8)
+                d3.select(this)
+                    .style("stroke", "transparent")
+                    .style("font-weight","normal")
+                d3.select("#label-"+d.properties.state_id)
+                    .style("opacity", .8)
+                    .style("font-weight","normal")
+            });
 
         const legendData = colorScale.ticks(10); 
         const legendItemWidth = 20;
