@@ -2,6 +2,7 @@
     import {Heading, P, Mark} from "flowbite-svelte";
     import { onMount } from "svelte";
     import Map from "./Map.svelte";
+    import Map2 from "./Map/+page.svelte";
     import * as d3 from "d3";
     import cloud from "d3-cloud";
 
@@ -197,9 +198,7 @@
                 </div>
             </div>
             <div class="h-full">
-            <!-- svelte-ignore a11y-missing-attribute -->
-            <!-- <iframe src="https://meta.analitik.my/public/dashboard/825a9781-b7e8-4fd3-915e-fc341efe7f23" frameborder="0px" width="100%" height="100%" allowtransparency></iframe> -->
-                <Map/>
+                <Map2/>
             </div>
         </div>
     </div>
