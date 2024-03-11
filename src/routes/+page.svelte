@@ -138,7 +138,7 @@
                     {#if Array.isArray(es_news)}
                         {#each es_news as ei}
                             <div class="relative">
-                                <a href="/edisi_siasat/details/{ei.id}" class="block hover:scale-[1.1] duration-300 ease-in-out hover:drop-shadow-xl grayscale-[80%] hover:filter-none">
+                                <a href="/edisi_siasat/details/{ei.id}" class="block hover:scale-[1.1] duration-300 ease-in-out hover:drop-shadow-xl grayscale-[80%]">
                                     {#if ei.img_url.endsWith('.pdf')}
                                         <img src="https://i.gzn.jp/img/2021/01/23/pdf-history/00.png" class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt="Default PDF Icon"/>
                                     {:else if ei.img_url.endsWith('.mp4') || ei.img_url.endsWith('.avi')}
@@ -151,7 +151,7 @@
                                         <img src={`http://172.20.100.190/media/${ei.img_url}`} class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt=""/>
                                     {/if}
 
-                                    <div class="absolute top-0 left-0 w-full h-40 flex items-center justify-center bg-black/50 rounded-lg hover:opacity-0 opacity-100 transition-opacity duration-300 ease-in-out">
+                                    <div class="absolute top-0 left-0 w-full h-40 flex items-center justify-center bg-black/50 rounded-lg opacity-100 transition-opacity duration-300 ease-in-out">
                                         <span class="text-white text-lg md:text-xl text-center font-semibold">{truncateDetails(ei.details)}</span>
                                     </div>
                                 </a>
