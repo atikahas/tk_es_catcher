@@ -4,67 +4,44 @@
     import * as topojson from 'topojson-client';
 
     let svgMap, svgBar;
-    let s = [];
-    let currentyearData = [];
-    let selectedYear; 
-    let yearOptions = []; 
+    let data = [];
+    let selectedYear;
+    let yearOptions = [];
     let tooltipContent = null;
     let tooltipX = 0;
     let tooltipY = 0;
 
-
     onMount(async () => {
-        const r = await fetch("/getMap");
-        const stateinfo = await r.json();
-        s = stateinfo.data.smap;
+        const mapResponse = await fetch('/getMap');
+        const mapData = await mapResponse.json();
+        data = mapData.data.smap;
 
-        const currentYear = new Date().getFullYear(); 
-        const yearSet = new Set(s.map(d => new Date(d.date_posted).getFullYear()));
-
-        yearOptions = Array.from(yearSet).sort();
-        selectedYear = new Date().getFullYear(); 
-
-        calculatecurrentYear(currentYear);
-        renderMap(currentyearData);
-        renderBar(currentyearData);
+        setupYears();
+        updateVisualizations(selectedYear);
     });
 
-    function updateVisualizations(year){
-        calculatecurrentYear(year);
-        renderMap(currentyearData);
-        renderBar(currentyearData);
+    function setupYears() {
+        const years = new Set(data.map(d => new Date(d.date_posted).getFullYear()));
+        yearOptions = Array.from(years).sort();
+        selectedYear = new Date().getFullYear();
     }
 
-    function aggregateData(){
-        const ttlmonth = {};
-        s.forEach(d => {
-            const date = new Date(d.date_posted);
-            const month = date.getMonth(); 
-            const year = date.getFullYear();
-            const state = d.negeri; 
-            if (!ttlmonth[state]) {
-                ttlmonth[state] = {};
-            }
-            if (!ttlmonth[state][year]) {
-                ttlmonth[state][year] = Array(12).fill(0);
-            }
-            ttlmonth[state][year][month]++;
+    function updateVisualizations(year) {
+        const aggregatedData = aggregateData(year);
+        renderMap(aggregatedData);
+        renderBar(aggregatedData);
+    }
+
+    function aggregateData(year) {
+        const monthlyData = {};
+        data.forEach(d => {
+        const date = new Date(d.date_posted);
+        if (date.getFullYear() === year) {
+            const state = d.negeri;
+            monthlyData[state] = (monthlyData[state] || 0) + 1;
+        }
         });
-        return ttlmonth;
-    }
-
-    function calculatecurrentYear(year){
-        const data = aggregateData();
-        const states = Object.keys(data);
-
-        currentyearData = states.map(state => ({
-            state,
-            total: data[state][year] ? data[state][year].reduce((sum, monthTotal) => sum + monthTotal, 0) : 0
-        }));
-    }
-
-    function highlightState(state){
-
+        return Object.entries(monthlyData).map(([state, total]) => ({ state, total }));
     }
 
     async function renderMap(cd) {
@@ -171,7 +148,90 @@
             .style('fill', d => d.properties.total != null ? colorScale(d.properties.total) : 'grey')
             .style('opacity', .8)
             .style('stroke', 'black')
-            .style('stroke-width', 1)
+            .style('stroke-width', 0.5)
+
+        const centroids = states.features.map(d => {
+            return { ...d, centroid: path.centroid(d) };
+        });
+
+        console.log(centroids);
+
+        const westStates = ['PERLIS', 'KEDAH', 'PERAK', 'PULAU PINANG', 'SELANGOR', 'W.P. KUALA LUMPUR', 'W.P. PUTRAJAYA', 'NEGERI SEMBILAN', 'MELAKA', 'JOHOR'];
+        const eastStates = ['PAHANG', 'TERENGGANU', 'KELANTAN'];
+        const borneoStates = ['SABAH', 'SARAWAK'];
+        const borneoLabuan = ['W.P. LABUAN'];
+
+        const labelsAndLines = d3.select(svgMap).selectAll(".label-line-group")
+            .data(centroids)
+            .enter().append("g")
+            .attr("class", "label-line-group")
+            .attr("id", d=> {
+                return "label-"+d.properties.state_id
+            });
+
+        const labelAdjustments = {
+            'SELANGOR': {xOffset: -75, yOffset: -20},
+            'W.P. KUALA LUMPUR': {xOffset: -85, yOffset: 0},
+            'W.P. PUTRAJAYA': {xOffset: -80, yOffset: 15},
+            'NEGERI SEMBILAN': {xOffset: -55, yOffset: 30},
+            'MELAKA': {xOffset: -55, yOffset: 30},
+            'JOHOR': {xOffset: -55, yOffset: 35},
+            'KELANTAN': {xOffset: 60, yOffset: -30}
+        };
+
+        labelsAndLines.each(function(d) {
+            console.log(d)
+            const [x, y] = d.centroid;
+            let xOffset = 0, yOffset = 0;
+            
+            if (labelAdjustments[d.properties.negeri]) {
+                xOffset = labelAdjustments[d.properties.negeri].xOffset;
+                yOffset = labelAdjustments[d.properties.negeri].yOffset;
+            } else if (westStates.includes(d.properties.negeri) || borneoLabuan.includes(d.properties.negeri)) {
+                xOffset = -55;
+            } else if (borneoStates.includes(d.properties.negeri)) {
+                xOffset = 100;
+            } else if (eastStates.includes(d.properties.negeri)) {
+                xOffset = 55;
+            }
+
+            d3.select(this).append("line")
+                .attr("x1", x)
+                .attr("y1", y)
+                .attr("x2", x)
+                .attr("y2", y + yOffset)
+                .attr("stroke", "black")
+                .attr("stroke-width", "0.4px");
+
+            d3.select(this).append("line")
+                .attr("x1", x)
+                .attr("y1", y + yOffset)
+                .attr("x2", x + xOffset)
+                .attr("y2", y + yOffset)
+                .attr("stroke", "black")
+                .attr("stroke-width", "0.4px");
+
+            d3.select(this).append("circle")
+                .attr('cx', x)
+                .attr('cy', y)
+                .attr('r', d => {
+                    return 1.5
+                })
+                .attr('fill', d => {
+                    return 'black'
+                })
+
+            d3.select(this).append("text")
+                .attr("x", x + xOffset)
+                .attr("y", y + yOffset)
+                .attr("dy", "0.35em")
+                .style("text-anchor", function(d) {
+                    return borneoStates.includes(d.properties.negeri) || eastStates.includes(d.properties.negeri) ? "start" : "end";
+                })
+                .style("font-size", "10px")
+                .text(d => `${d.properties.negeri} (${d.properties.total})`)
+        })
+            
     }
 
     function renderBar(cd) {
@@ -254,8 +314,8 @@
     });
 
     $: if (selectedYear) {
-    updateVisualizations(selectedYear);
-}
+        updateVisualizations(selectedYear);
+    }
 </script>
 <style>
 .tooltip {

@@ -12,18 +12,6 @@
     let news_api = [];
     let es_entities = [];
 
-    onMount(async () => {
-        const response = await fetch("/getNews");
-        if (response.ok) {
-            es = await response.json();
-            es_news = es.data.es_data;
-            es_news_img = es.data.es_img;
-            news_api = es.data.news.articles;
-        } else {
-            console.error("Error fetching es");
-        }
-    });
-
     const truncateDetails = (details) => {
         return details ? details.split(" ").slice(0, 7).join(" ") + "..." : '...';
     };
@@ -36,22 +24,38 @@
     };
 
     onMount(async () => {
-        const response = await fetch("/getWordCloud");
-        if (response.ok) {
-            const result = await response.json();
-            if (result.success && Array.isArray(result.data.es_entities)) {
-                es_entities = result.data.es_entities.map((e) => ({
-                    text: e.text,
-                    size: e.size,
-                }));
-                wordCloud();
+        try {
+            const [newsResponse, wordCloudResponse] = await Promise.all([
+                fetch("/getNews"),
+                fetch("/getWordCloud")
+            ]);
+
+            if (newsResponse.ok) {
+                const newsData = await newsResponse.json();
+                es = newsData;
+                es_news = newsData.data.es_data;
+                es_news_img = newsData.data.es_img;
+                news_api = newsData.data.news.articles;
             } else {
-                console.error(
-                    "Data not found.",
-                );
+                throw new Error('Error fetching news');
             }
-        } else {
-            console.error("Error fetching word cloud data");
+
+            if (wordCloudResponse.ok) {
+                const wordData = await wordCloudResponse.json();
+                if (wordData.success && Array.isArray(wordData.data.es_entities)) {
+                    es_entities = wordData.data.es_entities.map(e => ({
+                        text: e.text,
+                        size: e.size
+                    }));
+                    wordCloud(); 
+                } else {
+                    throw new Error('Word cloud data not found');
+                }
+            } else {
+                throw new Error('Error fetching word cloud');
+            }
+        } catch (error) {
+            console.error(error.message);
         }
     });
 
@@ -135,7 +139,18 @@
                         {#each es_news as ei}
                             <div class="relative">
                                 <a href="/edisi_siasat/details/{ei.id}" class="block hover:scale-[1.1] duration-300 ease-in-out hover:drop-shadow-xl grayscale-[80%] hover:filter-none">
-                                    <img src="http://172.20.100.190/media/{ei.img_url}" class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt=""/>
+                                    {#if ei.img_url.endsWith('.pdf')}
+                                        <img src="https://i.gzn.jp/img/2021/01/23/pdf-history/00.png" class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt="Default PDF Icon"/>
+                                    {:else if ei.img_url.endsWith('.mp4') || ei.img_url.endsWith('.avi')}
+                                        <!-- svelte-ignore a11y-media-has-caption -->
+                                        <video controls class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover">
+                                            <source src={`http://172.20.100.190/media/${ei.img_url}`} type="video/mp4"> 
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {:else}
+                                        <img src={`http://172.20.100.190/media/${ei.img_url}`} class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt=""/>
+                                    {/if}
+
                                     <div class="absolute top-0 left-0 w-full h-40 flex items-center justify-center bg-black/50 rounded-lg hover:opacity-0 opacity-100 transition-opacity duration-300 ease-in-out">
                                         <span class="text-white text-lg md:text-xl text-center font-semibold">{truncateDetails(ei.details)}</span>
                                     </div>
