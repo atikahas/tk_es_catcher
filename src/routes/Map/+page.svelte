@@ -47,6 +47,8 @@
     async function renderMap(cd) {
         var width = 960, height = 400;
 
+        d3.select(svgMap).selectAll(".label-line-group").remove(); 
+
         const cyd = cd || []; //current year data
         const m = await fetch('data/malaysia.json');
         const mapinfo = await m.json();
@@ -153,8 +155,7 @@
         const centroids = states.features.map(d => {
             return { ...d, centroid: path.centroid(d) };
         });
-
-        console.log(centroids);
+        console.log('centroids luar',centroids);
 
         const westStates = ['PERLIS', 'KEDAH', 'PERAK', 'PULAU PINANG', 'SELANGOR', 'W.P. KUALA LUMPUR', 'W.P. PUTRAJAYA', 'NEGERI SEMBILAN', 'MELAKA', 'JOHOR'];
         const eastStates = ['PAHANG', 'TERENGGANU', 'KELANTAN'];
@@ -166,6 +167,8 @@
             .enter().append("g")
             .attr("class", "label-line-group")
             .attr("id", d=> {
+                // console.log('centroids l&l',centroids);
+                // console.log('d',d);
                 return "label-"+d.properties.state_id
             });
 
@@ -180,7 +183,6 @@
         };
 
         labelsAndLines.each(function(d) {
-            console.log(d)
             const [x, y] = d.centroid;
             let xOffset = 0, yOffset = 0;
             
@@ -229,7 +231,7 @@
                     return borneoStates.includes(d.properties.negeri) || eastStates.includes(d.properties.negeri) ? "start" : "end";
                 })
                 .style("font-size", "10px")
-                .text(d => `${d.properties.negeri} (${d.properties.total})`)
+                .text(d => `${d.properties.negeri} (${d.properties.total || 0})`)
         })
             
     }
@@ -306,12 +308,6 @@
                 .tickFormat(''))
                 .style("opacity", 0.1);
     }
-
-
-    onMount(async () => {
-        renderMap();
-        renderBar();
-    });
 
     $: if (selectedYear) {
         updateVisualizations(selectedYear);
