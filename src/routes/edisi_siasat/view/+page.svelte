@@ -35,7 +35,6 @@
         if (response.ok) {
             const result = await response.json();
             es_data = result.data.es_data;
-            console.log(es_data);
             es_image = result.data.es_img;
             totalPages = Math.ceil(es_data.length / itemsPerPage);
             const searchQueryParam = getQueryParam('searchCloud');
@@ -212,7 +211,18 @@
                                             {#each es_image as ei}
                                                 {#if ei.es_id === eDetail.id}
                                                 <div class="relative">
-                                                    <img src="http://172.20.100.190/media/{ei.img_url}" class="max-h-30 max-w-auto rounded-lg m-2" alt=""/> 
+                                                    <!-- <img src="http://172.20.100.190/media/{ei.img_url}" class="max-h-30 max-w-auto rounded-lg m-2" alt=""/>  -->
+                                                    {#if ei.img_url.endsWith('.pdf')}
+                                                        <img src="https://i.gzn.jp/img/2021/01/23/pdf-history/00.png" class="h-full md:h-full w-full md:w-full rounded-lg object-cover" alt="Default PDF Icon"/>
+                                                    {:else if ei.img_url.endsWith('.mp4') || ei.img_url.endsWith('.avi')}
+                                                        <!-- svelte-ignore a11y-media-has-caption -->
+                                                        <video controls class="h-full md:h-full w-full md:w-full rounded-lg object-cover">
+                                                            <source src={`http://172.20.100.190/media/${ei.img_url}`} type="video/mp4"> 
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    {:else}
+                                                        <img src={`http://172.20.100.190/media/${ei.img_url}`} class="h-full md:h-full w-full md:w-full rounded-lg object-cover" alt=""/>
+                                                    {/if}
                                                 </div>
                                                 {/if}
                                             {/each}
