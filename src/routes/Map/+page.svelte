@@ -5,6 +5,7 @@
 
     let svgMap, svgBar;
     let data = [];
+    let labelsRendered = false;
     let selectedYear;
     let yearOptions = [];
     let tooltipContent = null;
@@ -46,6 +47,11 @@
 
     async function renderMap(cd) {
         var width = 960, height = 400;
+
+        if (!labelsRendered) {
+            labelsRendered = true; 
+            return;
+        }
 
         d3.select(svgMap).selectAll(".label-line-group").remove(); 
 
@@ -155,7 +161,6 @@
         const centroids = states.features.map(d => {
             return { ...d, centroid: path.centroid(d) };
         });
-        console.log('centroids luar',centroids);
 
         const westStates = ['PERLIS', 'KEDAH', 'PERAK', 'PULAU PINANG', 'SELANGOR', 'W.P. KUALA LUMPUR', 'W.P. PUTRAJAYA', 'NEGERI SEMBILAN', 'MELAKA', 'JOHOR'];
         const eastStates = ['PAHANG', 'TERENGGANU', 'KELANTAN'];
@@ -167,8 +172,6 @@
             .enter().append("g")
             .attr("class", "label-line-group")
             .attr("id", d=> {
-                // console.log('centroids l&l',centroids);
-                // console.log('d',d);
                 return "label-"+d.properties.state_id
             });
 
@@ -314,17 +317,16 @@
     }
 </script>
 <style>
-.tooltip {
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
-    padding: 8px;
-    border-radius: 4px;
-    z-index: 10;
-    max-width: 200px;
-    text-align: center;
-    font-size: 12px;
-}
-
+    .tooltip {
+        background: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 8px;
+        border-radius: 4px;
+        z-index: 10;
+        max-width: 200px;
+        text-align: center;
+        font-size: 12px;
+    }
 </style>
 
 <div>
