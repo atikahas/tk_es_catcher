@@ -1,8 +1,7 @@
 <script>
     import {Heading, P, Mark} from "flowbite-svelte";
     import { onMount } from "svelte";
-    import Map from "./Map.svelte";
-    import Map2 from "./Map/+page.svelte";
+    import Calendar from "./Calendar/+page.svelte"
     import * as d3 from "d3";
     import cloud from "d3-cloud";
 
@@ -109,7 +108,6 @@
                 })
         }
     };
-    
 </script>
 
 <section>
@@ -118,6 +116,9 @@
         <P class="text-center">Stay updated, stay informed - your daily dose of news at your fingertips.</P>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+        <div class="md:col-span-4">
+            <Calendar/>
+        </div>
         <div class="md:col-span-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                 <div class="sm:col-span-3">
@@ -137,18 +138,18 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                     {#if Array.isArray(es_news)}
                         {#each es_news as ei}
-                            <div class="relative">
-                                <a href="/edisi_siasat/details/{ei.id}" class="block hover:scale-[1.1] duration-300 ease-in-out hover:drop-shadow-xl grayscale-[80%]">
+                            <div class="relative group">
+                                <a href="/edisi_siasat/details/{ei.id}" class="block hover:scale-[1.05] duration-300 ease-in-out hover:drop-shadow-xl overflow-hidden">
                                     {#if ei.img_url.endsWith('.pdf')}
-                                        <img src="https://i.gzn.jp/img/2021/01/23/pdf-history/00.png" class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt="Default PDF Icon"/>
+                                        <img src="https://i.gzn.jp/img/2021/01/23/pdf-history/00.png" class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover group-hover:grayscale-0 grayscale transition-all duration-300" alt="Default PDF Icon"/>
                                     {:else if ei.img_url.endsWith('.mp4') || ei.img_url.endsWith('.avi')}
                                         <!-- svelte-ignore a11y-media-has-caption -->
-                                        <video controls class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover">
+                                        <video controls class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover group-hover:grayscale-0 grayscale transition-all duration-300">
                                             <source src={`http://172.20.100.190/media/${ei.img_url}`} type="video/mp4"> 
                                             Your browser does not support the video tag.
                                         </video>
                                     {:else}
-                                        <img src={`http://172.20.100.190/media/${ei.img_url}`} class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover" alt=""/>
+                                        <img src={`http://172.20.100.190/media/${ei.img_url}`} class="h-40 md:h-40 w-full md:w-full rounded-lg object-cover group-hover:grayscale-0 grayscale transition-all duration-300" alt=""/>
                                     {/if}
 
                                     <div class="absolute top-0 left-0 w-full h-40 flex items-center justify-center bg-black/50 rounded-lg opacity-100 transition-opacity duration-300 ease-in-out">
@@ -200,20 +201,6 @@
                         {/each}
                     {/if}
                 </ol>
-            </div>
-        </div>
-        <div class="md:col-span-4">
-            <div class="mb-3">
-                <div class="flex justify-between items-center dark:bg-gray-600">
-                    <div class="text-gray-500 sm:text-lg dark:text-gray-400">
-                        <blockquote class="p-1 pl-2 border-s-8 border-blue-300">
-                            <p class="text-xl italic font-medium leading-relaxed text-gray-900 dark:text-white">Most Mentioned by State</p>
-                        </blockquote>
-                    </div>
-                </div>
-            </div>
-            <div class="h-full">
-                <Map2/>
             </div>
         </div>
     </div>

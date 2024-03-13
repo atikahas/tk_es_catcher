@@ -13,6 +13,7 @@ import { page } from '$app/stores';
 	<NavHamburger />
 	<NavUl {activeUrl}>
 		<NavLi href="/">Home</NavLi>
+		<NavLi href="/dashboard">Dashboard</NavLi>
 		<NavLi class="cursor-pointer">
 			News<ChevronDownOutline class="w-3 h-3 ms-2 text-primary-800 dark:text-white inline" />
 		</NavLi>

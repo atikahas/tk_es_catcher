@@ -3,7 +3,7 @@
     import * as d3 from 'd3';
     import * as topojson from 'topojson-client';
 
-    let svgMap, svgBar;
+    let svgMap;
     let data = [];
     let labelsRendered = false;
     let selectedYear;
@@ -30,7 +30,6 @@
     function updateVisualizations(year) {
         const aggregatedData = aggregateData(year);
         renderMap(aggregatedData);
-        renderBar(aggregatedData);
     }
 
     function aggregateData(year) {
@@ -239,79 +238,6 @@
             
     }
 
-    function renderBar(cd) {
-        const cyd = cd || []; // Current year data
-
-        const margin = { top: 10, right: 20, bottom: 80, left: 40 },
-            width = 960 - margin.left - margin.right,
-            height = 200 - margin.top - margin.bottom;
-
-        d3.select(svgBar).selectAll('*').remove(); 
-
-        const x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
-            y = d3.scaleLinear().rangeRound([height, 0]);
-
-        const chart = d3.select(svgBar)
-            .attr('viewBox', [0, 0, width + margin.left + margin.right, height + margin.top + margin.bottom].join(' '))
-            .append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
-
-        x.domain(cyd.map(d => d.state));
-        y.domain([0, d3.max(cyd, d => d.total)]);
-
-        chart.append('g')
-            .attr('class', 'x axis')
-            .attr('transform', `translate(0,${height})`)
-            .call(d3.axisBottom(x))
-            .selectAll("text")
-            .attr("transform", "translate(-10,0)rotate(-45)")
-            .style("text-anchor", "end").style("font-size", "10px");
-
-        chart.append('g')
-            .attr('class', 'y axis')
-            .call(d3.axisLeft(y).ticks(10))
-            .append('text')
-            .attr('transform', 'rotate(-90)')
-            .attr('y', 6)
-            .attr('dy', '0.71em')
-            .attr('text-anchor', 'end')
-            .text('Frequency');
-
-        const colorScale = d3.scaleSequential()
-            .domain([0, d3.max(cyd, d => d.total)])
-            .interpolator(d3.interpolateBlues);
-
-        chart.selectAll('.bar')
-            .data(cyd)
-            .enter().append('rect')
-            .attr('class', 'bar')
-            .attr('id', d => `bar${d.state}`)
-            .attr('x', d => x(d.state))
-            .attr('y', d => y(d.total))
-            .attr('width', x.bandwidth())
-            .attr('height', d => height - y(d.total))
-            .style('fill', d => colorScale(d.total))
-            .on('mouseover', function(event, d) {
-                tooltipContent = `${d.state}: ${d.total}`;
-                tooltipX = event.pageX;
-                tooltipY = event.pageY;
-            })
-            .on('mousemove', function(event) {
-                tooltipX = event.pageX;
-                tooltipY = event.pageY;
-            })
-            .on('mouseout', function() {
-                tooltipContent = '';
-            });
-
-        chart.append('g')
-            .attr('class', 'grid')
-            .call(d3.axisLeft(y)
-                .tickSize(-width)
-                .tickFormat(''))
-                .style("opacity", 0.1);
-    }
-
     $: if (selectedYear) {
         updateVisualizations(selectedYear);
     }
@@ -339,5 +265,4 @@
         {tooltipContent}
     </div>
     <svg bind:this={svgMap}></svg>
-    <svg bind:this={svgBar}></svg>
 </div>
