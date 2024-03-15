@@ -213,7 +213,10 @@
                                                 <div class="relative">
                                                     <!-- <img src="http://172.20.100.190/media/{ei.img_url}" class="max-h-30 max-w-auto rounded-lg m-2" alt=""/>  -->
                                                     {#if ei.img_url.endsWith('.pdf')}
-                                                        <img src="https://i.gzn.jp/img/2021/01/23/pdf-history/00.png" class="h-full md:h-full w-full md:w-full rounded-lg object-cover" alt="Default PDF Icon"/>
+                                                        <!-- svelte-ignore a11y-missing-attribute -->
+                                                        <object data={`http://172.20.100.190/media/${ei.img_url}`} type="application/pdf" class="h-dvh md:h-dvh w-full md:w-full rounded-lg object-cover">
+                                                            <embed src={`http://172.20.100.190/media/${ei.img_url}`} type="application/pdf" class="h-dvh md:h-dvh w-full md:w-full rounded-lg object-cover"/>
+                                                        </object>
                                                     {:else if ei.img_url.endsWith('.mp4') || ei.img_url.endsWith('.avi')}
                                                         <!-- svelte-ignore a11y-media-has-caption -->
                                                         <video controls class="h-full md:h-full w-full md:w-full rounded-lg object-cover">

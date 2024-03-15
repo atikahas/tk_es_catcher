@@ -49,12 +49,14 @@
         {esDetails.details}
         <!-- {@html formatWithLineBreaks(esDetails.details)} -->
         <!-- <Gallery items={images} class="gap-4 grid-cols-2 md:grid-cols-3" /> -->
-
         {#if Array.isArray(esImage)}
             {#each esImage as ei}
                 <div>
                     {#if ei.img_url.endsWith('.pdf')}
-                        <img src="https://i.gzn.jp/img/2021/01/23/pdf-history/00.png" class="h-full md:h-full w-full md:w-full rounded-lg object-cover" alt="Default PDF Icon"/>
+                        <!-- svelte-ignore a11y-missing-attribute -->
+                        <object data={`http://172.20.100.190/media/${ei.img_url}`} type="application/pdf" class="h-dvh md:h-dvh w-full md:w-full rounded-lg object-cover">
+                            <embed src={`http://172.20.100.190/media/${ei.img_url}`} type="application/pdf" class="h-dvh md:h-dvh w-full md:w-full rounded-lg object-cover"/>
+                        </object>
                     {:else if ei.img_url.endsWith('.mp4') || ei.img_url.endsWith('.avi')}
                         <!-- svelte-ignore a11y-media-has-caption -->
                         <video controls class="h-full md:h-full w-full md:w-full rounded-lg object-cover">

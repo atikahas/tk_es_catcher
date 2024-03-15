@@ -42,7 +42,7 @@ export async function GET() {
 
     try {
         const news = await fetchNewsRetry(apiKeys, newsApiUrl);
-        const [es_data] = await db.query('SELECT DISTINCT telegram_edisi_siasat.*, telegram_edisi_siasat_img.img_url FROM telegram_edisi_siasat JOIN telegram_edisi_siasat_img ON telegram_edisi_siasat.id = telegram_edisi_siasat_img.es_id ORDER BY telegram_edisi_siasat.date_posted DESC LIMIT 3');
+        const [es_data] = await db.query('SELECT DISTINCT telegram_edisi_siasat.*, telegram_edisi_siasat_img.img_url FROM telegram_edisi_siasat JOIN telegram_edisi_siasat_img ON telegram_edisi_siasat.id = telegram_edisi_siasat_img.es_id ORDER BY telegram_edisi_siasat.date_posted DESC');
         const [es_img] = await db.query("SELECT a.*, b.* FROM (SELECT * FROM `telegram_edisi_siasat` ORDER BY created_at DESC LIMIT 20) a LEFT JOIN (SELECT es_id, msg_id, img_url FROM `telegram_edisi_siasat_img` WHERE img_url IS NOT NULL OR img_url = '' GROUP BY es_id, msg_id) b ON a.id = b.es_id AND a.msg_id = b.msg_id WHERE b.img_url IS NOT NULL OR b.img_url = '' LIMIT 3");
 
         return new Response(

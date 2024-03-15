@@ -4,9 +4,9 @@ export async function GET() {
     try {
 
         var q = `
-            SELECT *, DATE(date_posted), TIME(date_posted) FROM telegram_edisi_siasat 
+            SELECT *, DATE(date_posted) AS date_news, TIME(date_posted) AS time_news FROM telegram_edisi_siasat 
             ORDER BY date_posted DESC
-            LIMIT 8
+            LIMIT 7
         `;
         const [latestnews] = await db.query(q);
 
