@@ -157,7 +157,7 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                     {#if Array.isArray(es_news)}
-                        {#each es_news.slice( 0,5) as ei}
+                        {#each es_news as ei}
                             {#if ei.img_url.endsWith('.jpg') || ei.img_url.endsWith('.jpeg') || ei.img_url.endsWith('.png') || ei.img_url.endsWith('.gif')}
                                 <div class="relative group">
                                     <a href="/edisi_siasat/details/{ei.id}" class="block hover:scale-[1.05] duration-300 ease-in-out hover:drop-shadow-xl overflow-hidden">
