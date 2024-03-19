@@ -4,7 +4,7 @@ export async function GET() {
     try {
 
         var q = `
-            SELECT DATE(date_posted), COUNT(*) FROM telegram_edisi_siasat 
+            SELECT DATE(date_posted) AS date, COUNT(*) AS total FROM telegram_edisi_siasat 
             GROUP BY DATE(date_posted)
         `;
         const [cal] = await db.query(q);
